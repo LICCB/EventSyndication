@@ -1,0 +1,37 @@
+.topbar {
+    width: 100%;
+    background-color: lightskyblue;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.topbar a {
+    display: inline-block;
+    text-align: center;
+    padding: 20px 20px;
+    text-decoration: none;
+}
+
+.sidebar {
+    width: 10%;
+    background-color: #eeefff;
+    position: fixed;
+    z-index: 0;
+    top: 10%;
+    padding: 0;
+    margin: 0;
+
+}
+
+.sidebar a {
+    background-color: #eeefff;
+    display: block;
+    padding: 20px 20px;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    background-color: #cccfff;
+
+}
