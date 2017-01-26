@@ -18,7 +18,7 @@ url(r'^$', views.home, name='home'),
     url(r'^login/$',
         django.contrib.auth.views.login,
         {
-            'template_name': 'app/login.html',
+            'template_name': 'webapp/login.html',
             'authentication_form': forms.BootstrapAuthenticationForm,
             'extra_context':
             {

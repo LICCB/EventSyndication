@@ -18,7 +18,7 @@ def home(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/index.html',
+        'webapp/index.html',
         {
             'title':'Syndication Tool',
             'year':datetime.now().year,
@@ -30,7 +30,7 @@ def createEvent(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/createEvent.html',
+        'webapp/createEvent.html',
         {
             'title':'Create Event',
             'message':'Your Event Creation page.',
@@ -42,7 +42,7 @@ def publish(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/publish.html',
+        'webapp/publish.html',
         {
             'title':'Publish event',
             'message':'Your Event Creation page.',
@@ -54,7 +54,7 @@ def pubStatus(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/pubStatus.html',
+        'webapp/pubStatus.html',
         {
             'title':'Publication Status',
             'message':'Your Event Creation page.',
@@ -67,7 +67,7 @@ def admin(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/admin.html',
+        'webapp/admin.html',
         {
             'title':'Administration',
             'message':'Your application description page.',
