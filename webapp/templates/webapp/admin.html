@@ -1,0 +1,33 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+
+{#<h1 class="pageHeader">{{ title }}</h1>#}
+<div class="card">
+	<h1 class="pageHeaders">{{ title }}</h1>
+    <table id="AdminTable">
+        <tr>
+            <td>
+                <i class="fa fa-lock"></i><br />
+                <a href="#">Change Security and Admins</a>
+            </td>
+            <td>
+                <i class="fa fa-key"></i>
+                <br />
+                <a href="#">Change API Keys </a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+<i class="fa fa-book" ></i><br />
+                <a href="#">Vuew Logs</a>
+            </td>
+            <td>
+
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+{% endblock %}
