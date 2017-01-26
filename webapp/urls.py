@@ -3,11 +3,11 @@ from . import views
 
 urlpatterns = [
     #url(r'^$', views.index, name='index')
-url(r'^$', app.views.home, name='home'),
-    url(r'^createEvent$', app.views.createEvent, name='createEvent'),
-    url(r'^admin', app.views.admin, name='admin'),
-	url(r'^publish', app.views.publish, name='publish'),
-	url(r'^pubStatus', app.views.pubStatus, name='pubStatus'),
+url(r'^$', views.home, name='home'),
+    url(r'^createEvent$', views.createEvent, name='createEvent'),
+    url(r'^admin', views.admin, name='admin'),
+	url(r'^publish', views.publish, name='publish'),
+	url(r'^pubStatus', views.pubStatus, name='pubStatus'),
     url(r'^login/$',
         django.contrib.auth.views.login,
         {
