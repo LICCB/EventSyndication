@@ -1,5 +1,8 @@
 # CS423
 
+Long Island City Event Syndication
+
+
 # Long Island City Event Syndication
 
 ## Getting Started
@@ -14,3 +17,4 @@
 
 - Run the app
     - In the project root, run `python3 manage.py runserver`
+    - Navigate to http://127.0.0.1:8000/eventsyndication/ to see the homepage. This is just a starter point for now. Possibly merge some code with Stas's branch?
