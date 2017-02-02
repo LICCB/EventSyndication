@@ -10,19 +10,19 @@ class EventInfo(models.Model):
 	EventLocation = models.CharField(max_length=50)
 
 # This table will store the information about a particular instance of a trip.
-# It uses the primary key of the EventInfo table to join the information 
+# It uses the primary key of the EventInfo table to join the information
 # together, and also includes the PostingID from the Postings table.
 class EventLog(models.Model):
 	TripID = models.AutoField(primary_key=True)
 	EventID = models.ForeignKey(EventInfo,on_delete=models.CASCADE)
 	EventStart = models.DateTimeField()
 	EventEnd = models.DateTimeField()
-	PostingID = models.ForeignKey(Postings, on_delete=models.SET_NULL)
+	PostingID = models.IntegerField()
 
 # This table keeps track of where an event has been posted.
 class Postings(models.Model):
 	PostingID = models.AutoField(primary_key=True)
 	TripID = models.ForeignKey(EventLog, on_delete=models.CASCADE)
-	Facebook = models.Boolean()
-	MeetUp = models.Boolean()
-	EventBrite = models.Boolean()
+	Facebook = models.BooleanField()
+	MeetUp = models.BooleanField()
+	EventBrite = models.BooleanField()
