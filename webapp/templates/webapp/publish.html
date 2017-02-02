@@ -7,7 +7,12 @@
 		<div class="cardBody"> 
 		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
 		<div style="display:inline">
-		<br>Event being published:<div class="dropDown">
+            <br> <div class="dropdown">
+                <div id="currentPublish" value="-1">Event from last page/Choose Event</div>
+                <ul id="publishSelection" class="dropdown-content"></ul>
+            </div>
+            
+       <!--<br>Event being published:<div class="dropDown">
         <ul>
             <li>Current Event Selected
 
@@ -29,16 +34,19 @@
                     </li>
                 </ul>
             </li>
-        </ul>
+        </ul>-->
     </div>
 			</div>
 		<br>
 		<br>
 		Choose on which platforms to publish:<br>
-		<input type="checkbox" name="platform" value="Facebook"> Facebook<br>
-		<input type="checkbox" name="platform" value="EventBrite"> EventBrite<br>
+		<!--<input type="checkbox" name="platform_All" value="All"> Publish on All platforms<br>-->
+			<input type="checkbox" name="platform" value="Facebook"> Facebook<br>
+            <input type="checkbox" name="platform" value="LICCB"> LICCB Blog<br>
+			<input type="checkbox" name="platform" value="EventBrite"> EventBrite<br>
 			<input type="checkbox" name="platform" value="Twitter"> Twitter<br>
-			<input type="checkbox" name="platform" value="GooglePLus"> GooglePLus<br>
+			<input type="checkbox" name="platform" value="GooglePlus"> GooglePlus<br>
+            <input type="checkbox" name="platform" value="GoogleCalendar"> GoogleCalendar<br>
 			<input type="checkbox" name="platform" value="MailChimp"> MailChimpr<br>
 			<div style="margin-top:20px">
 		<button style="margin-top:20px" id="PublishEvent_publish" class="submitButton"> Publish </button> <button id="PublishEvent_cancel" class="cancelButton"> Cancel </button> 
