@@ -1,0 +1,48 @@
+{% extends "webapp/layout.html" %}
+
+{% block content %}
+
+<div class="card">
+		<h1 class="pageHeaders"> Publish Social Event </h1>
+		<div class="cardBody"> 
+		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
+		<div style="display:inline">
+		<br>Event being published:<div class="dropDown">
+        <ul>
+            <li>Current Event Selected
+
+                <ul>
+                    <li>Unpublished event 1
+
+                    </li>
+                    <li>Unpublished event 2
+
+                    </li>
+                    <li>Unpublished event 3
+
+                    </li>
+                    <li>Unpublished event 4
+
+                    </li>
+                    <li>Unpublished event 5
+
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+			</div>
+		<br>
+		<br>
+		Choose on which platforms to publish:<br>
+		<input type="checkbox" name="platform" value="Facebook"> Facebook<br>
+		<input type="checkbox" name="platform" value="EventBrite"> EventBrite<br>
+			<input type="checkbox" name="platform" value="Twitter"> Twitter<br>
+			<input type="checkbox" name="platform" value="GooglePLus"> GooglePLus<br>
+			<input type="checkbox" name="platform" value="MailChimp"> MailChimpr<br>
+			<div style="margin-top:20px">
+		<button style="margin-top:20px" id="PublishEvent_publish" class="submitButton"> Publish </button> <button id="PublishEvent_cancel" class="cancelButton"> Cancel </button> 
+		</div>
+	</div>
+	</div>
+{% endblock %}
