@@ -1,0 +1,131 @@
+.card{
+	text-align:center;
+	width: 75%;
+	background-color: white;
+	height: 700px;
+	font-size: 16px;
+	margin-top:50px;
+	margin-left:15%;
+	box-shadow: 5px 5px 2px;
+}
+
+.card h1{
+	padding-top: 20px;
+	color:blue;
+}
+.cardBody{
+	text-align:left;
+	width:80%;
+	margin-left:20%;
+    border:1px;
+}
+body{
+	background:lightgrey;
+}
+.submitButton{
+	background-color:lightblue;
+	margin-left:20px;
+
+}
+.cancelButton{
+	margin-left:20px;
+	background-color:red;
+}
+textarea{
+	vertical-align: top;
+}
+
+.container-fluid{
+	background-color: lightblue;
+}
+label {
+    width: 300px;
+    display: block;
+}
+label input{
+    width:200px;
+    float:right;
+
+}
+
+
+#AdminTable{
+    margin-left:150px;
+    margin-right:150px;
+    margin-top:40px;
+   
+}
+#AdminTable td{
+    padding:50px;
+}
+
+#AdminTable i{
+     font-size:75px !important;
+     color:darkcyan;
+}
+
+#AdminTable i:hover{
+    cursor:pointer;
+}
+
+#pubStatusTable td{
+    padding-left:10px;
+     padding-right:10px;
+}
+#pubStatusTable th{
+    padding-left:10px;
+     padding-right:10px;
+}
+#pubStatusTable{
+    text-align:center;
+}
+
+/*  DROP DOWN*/
+#currentRoute {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+#currentRoute:hover, #currentRoute:focus {
+    background-color: #3e8e41;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.dropdown ul{
+    list-style-type: none;
+}
+.dropdown-content {
+    text-align:left;
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dropdown-content li{
+    padding-top:5px;
+    padding-left:0px;
+}
+
+.dropdown:hover .dropdown-content{
+    color: black;
+    padding: 12px 16px;
+    /*padding-left:0px;*/
+    text-decoration: none;
+    display: block !important;
+}
+
+.dropdown li:hover {
+    background-color: #9ba1aa;
+    cursor:pointer;
+    
+}
