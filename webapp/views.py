@@ -10,8 +10,8 @@ Definition of views.
 
 from django.shortcuts import render
 from django.http import HttpRequest
-from django.template import RequestContext
 from datetime import datetime
+from webapp.forms import AddEventForm
 
 def home(request):
     """Renders the home page."""
@@ -28,6 +28,11 @@ def home(request):
 def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
+    form = AddEventForm()
+    if request.method == "POST":
+        form = AddEventForm(request.POST)
+        if form.is_valid():
+            form.save()
     return render(
         request,
         'webapp/createEvent.html',
@@ -35,6 +40,7 @@ def createEvent(request):
             'title':'Create Event',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
+            'form': form
         }
     )
 def publish(request):
@@ -74,3 +80,16 @@ def admin(request):
             'year':datetime.now().year,
         }
     )
+
+def add(request):
+    """Saves form to db"""
+    if request.method == "POST":
+        form = AddEventForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, "webapp/createEvent.html",
+                        {
+                              'title': 'Create Event',
+                              'message': 'Your Event Creation Page',
+                              'year': datetime.now().year
+                        })

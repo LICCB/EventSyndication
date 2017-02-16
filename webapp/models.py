@@ -4,10 +4,12 @@ from django.db import models
 # repeatable events, this is separated from the table with the data about
 # an individual trip.
 class EventInfo(models.Model):
-	EventID = models.AutoField(primary_key=True)
-	EventName = models.CharField(max_length=50)
-	EventDescription = models.TextField()
-	EventLocation = models.CharField(max_length=50)
+    EventID = models.AutoField(primary_key=True)
+    EventName = models.CharField(max_length=50)
+    EventDescription = models.TextField()
+    EventLocation = models.CharField(max_length=50)
+    def __unicode__(self):
+        return self.EventName
 
 # This table will store the information about a particular instance of a trip.
 # It uses the primary key of the EventInfo table to join the information
