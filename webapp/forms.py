@@ -29,5 +29,8 @@ class AddEventForm(ModelForm):
         fields = [
            "EventName",
             "EventDescription",
-            "EventLocation"
+            "EventMeetLocation",
+            "EventDestination",
+            "EventStart",
+            "EventEnd"
         ]
