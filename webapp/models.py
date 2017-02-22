@@ -15,7 +15,6 @@ class EventInfo(models.Model):
     def __unicode__(self):
         return self.EventName
 
-
 # This table keeps track of where an event has been posted.
 class Postings(models.Model):
     PostingID = models.AutoField(primary_key=True)
