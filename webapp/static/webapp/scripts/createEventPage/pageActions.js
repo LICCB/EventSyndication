@@ -7,16 +7,19 @@ var dummyRoutes = [{ routeID: 1, routeName: 'TripA', eventType: 'Overnight', des
 ];
 
 $(document).ready(function () {
-    populateDropDown();
-    $('.dropdown-content li').on('click', function (e) {
-        routeSelected(e);
-    });
-    $('input').on('input', function (e) {
-        checkWetherToEnableButtons(e.target);
-    });
-    $('#Event_Description').on('input', function (e) {
-        checkWetherToEnableButtons(e.target);
-    })
+    // populateDropDown();
+    // $('.dropdown-content li').on('click', function (e) {
+        // routeSelected(e);
+    // });
+    // $('input').on('input', function (e) {
+        // checkWetherToEnableButtons(e.target);
+    // });
+    // $('#Event_Description').on('input', function (e) {
+        // checkWetherToEnableButtons(e.target);
+    // })
+	$($('input[type="submit"][value="Submit"]')[0]).on('click',function(e){
+		sessionStorage.setItem('eventName',$('#id_EventName').val());
+	})
 }
 );
 
