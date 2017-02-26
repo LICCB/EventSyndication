@@ -5,13 +5,15 @@
 <div class="card">
 		<h1 class="pageHeaders"> Create a Social Event </h1>
 		<div class="cardBody"> 
+		<br>
+		<br>
 		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
-		    <br> <div class="dropdown">
+		    <!-- <br> <div class="dropdown">
             <div id="currentRoute" value="-1">Choose a Route</div>
              <ul id="routeSelection" class="dropdown-content"> </ul>
         </div>
          <b style="margin-left:10px"> Or create a new one:</b><button class="NewTripButton" id= "CreateTrip"/> Create New Route</button>
-        
+         -->
          <form method="post" action="createEvent"> {% csrf_token %}
              <table>
                  {{ form.as_p }}
