@@ -12,7 +12,7 @@ from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
 from webapp.forms import AddEventForm
-
+from django.shortcuts import get_object_or_404,redirect
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -33,6 +33,7 @@ def createEvent(request):
         form = AddEventForm(request.POST)
         if form.is_valid():
             form.save()
+        return redirect('publish')#,eventName=request.POST['EventName']
     return render(
         request,
         'webapp/createEvent.html',
@@ -43,7 +44,7 @@ def createEvent(request):
             'form': form
         }
     )
-def publish(request):
+def publish(request):#,eventName=""
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     return render(
@@ -53,6 +54,7 @@ def publish(request):
             'title':'Publish event',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
+            # 'eventName':eventName,
         }
     )
 def pubStatus(request):
