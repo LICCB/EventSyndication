@@ -13,7 +13,7 @@ urlpatterns = [
 url(r'^$', views.home, name='home'),
     url(r'^createEvent$', views.createEvent, name='createEvent'),
     url(r'^admin', views.admin, name='admin'),
-	url(r'^publish', views.publish, name='publish'),
+	url(r'^publish', views.publish, name='publish'),#/(?P<eventName>\d+)/$
 	url(r'^pubStatus', views.pubStatus, name='pubStatus'),
     url(r'^login/$',
         django.contrib.auth.views.login,
