@@ -34,3 +34,11 @@ class AddEventForm(ModelForm):
             "EventStart",
             "EventEnd"
         ]
+        labels = {
+            "EventName":"Event Name",
+            "EventDescription":"Description",
+            "EventMeetLocation" : "Meet Location",
+            "EventDestination" : "Destination",
+            "EventStart" : "Start Date and Time",
+            "EventEnd" : "End Date and Time"
+        }
