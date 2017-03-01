@@ -26,4 +26,14 @@ class Postings(models.Model):
     MeetUp = models.BooleanField()
     EventBrite = models.BooleanField()
 
+class ApiKey(models.Model):
+    """Model for an API key"""
+    service = models.CharField(max_length=50)
+    key = models.TextField()
+    lastUpdated = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def create(cls, service, key):
+        apiKey = cls(service = service, key = key)
+        return apiKey
 
