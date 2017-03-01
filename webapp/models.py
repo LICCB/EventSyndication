@@ -27,6 +27,3 @@ class Postings(models.Model):
     EventBrite = models.BooleanField()
 
 
-    #EventName = models.CharField(max_length=50,'Event Name')
-    #EventMeetLocation = models.CharField(max_length=50)
-    #EventDestination = models.CharField(max_length=50)
