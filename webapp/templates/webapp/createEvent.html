@@ -5,16 +5,21 @@
 <div class="card">
 		<h1 class="pageHeaders"> Create a Social Event </h1>
 		<div class="cardBody"> 
-		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
-		
-		<br> <div class="dropdown">
-            <div id="currentRoute" value="-1">Choose a Route</div>
-                <ul id="routeSelection" class="dropdown-content">
-                   
-                </ul>
-    </div>
-            <b style="margin-left:10px"> Or create a new one:</b><button class="NewTripButton" id= "CreateTrip"/> Create New Route</button>
 		<br>
+		<br>
+		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
+		    <!-- <br> <div class="dropdown">
+            <div id="currentRoute" value="-1">Choose a Route</div>
+             <ul id="routeSelection" class="dropdown-content"> </ul>
+        </div>
+         <b style="margin-left:10px"> Or create a new one:</b><button class="NewTripButton" id= "CreateTrip"/> Create New Route</button>
+         -->
+         <form method="post" action="createEvent"> {% csrf_token %}
+             <table>
+                 {{ form.as_p }}
+            </table>
+            <input type="submit" value="Submit">
+<!--    <br>
 		<br>
 		<label><b>Name: </b><input id="EventName" text="Name of Event"/> </label>
 		<br>
@@ -32,10 +37,10 @@
 		<br>
 		</div>
 		    <button id="CreateEvent_publish" class="submitButton" disabled> Save & Publish </button>
-            <button id="CreateEvent_save" class="submitButton" disabled> Save </button> 
+            <button id="CreateEvent_save" class="submitButton" type="submit" formaction="/webapp/submit"> Save </button> 
              <button id="CreateEvent_clear" class="cancelButton"> Clear </button> 
-            <button id="CreateEvent_cancel" class="cancelButton"> Cancel </button> 
-		</div>
+             <button id="CreateEvent_cancel" class="cancelButton"> Cancel </button>--> 
+        </div>
 	</div>
 <script src="../../static/webapp/scripts/createEventPage/pageActions.js" type="text/javascript"></script>
 {% endblock %}

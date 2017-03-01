@@ -3,14 +3,14 @@
 {% block content %}
 
 <div class="card">
-		<h1 class="pageHeaders"> Publish Social Event </h1>
+		<h1 class="pageHeaders" id="pubHeader">Publish social Event </h1>
 		<div class="cardBody"> 
 		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
-		<div style="display:inline">
+		<!-- <div style="display:inline">
             <br> <div class="dropdown">
                 <div id="currentPublish" value="-1">Event from last page/Choose Event</div>
                 <ul id="publishSelection" class="dropdown-content"></ul>
-            </div>
+            </div> -->
             
        <!--<br>Event being published:<div class="dropDown">
         <ul>
@@ -35,12 +35,13 @@
                 </ul>
             </li>
         </ul>-->
-    </div>
-			</div>
+    <!-- </div> -->
+			<!-- </div> -->
 		<br>
 		<br>
-		Choose on which platforms to publish:<br>
+		Choose on which platforms to publish:<!-- <i id="ename">Event Name</i> --><br>
 		<!--<input type="checkbox" name="platform_All" value="All"> Publish on All platforms<br>-->
+			<input type="checkbox" name="publishAll" id="publishCheckAll"> All <br>
 			<input type="checkbox" name="platform" value="Facebook"> Facebook<br>
             <input type="checkbox" name="platform" value="LICCB"> LICCB Blog<br>
 			<input type="checkbox" name="platform" value="EventBrite"> EventBrite<br>
@@ -53,4 +54,5 @@
 		</div>
 	</div>
 	</div>
+	<script src="../../static/webapp/scripts/publishEventPage/pubEvent.js" type="text/javascript"></script>
 {% endblock %}

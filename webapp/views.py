@@ -10,9 +10,9 @@ Definition of views.
 
 from django.shortcuts import render
 from django.http import HttpRequest
-from django.template import RequestContext
 from datetime import datetime
-
+from webapp.forms import AddEventForm
+from django.shortcuts import get_object_or_404,redirect
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -28,6 +28,12 @@ def home(request):
 def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
+    form = AddEventForm()
+    if request.method == "POST":
+        form = AddEventForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('publish')#,eventName=request.POST['EventName']
     return render(
         request,
         'webapp/createEvent.html',
@@ -35,9 +41,10 @@ def createEvent(request):
             'title':'Create Event',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
+            'form': form
         }
     )
-def publish(request):
+def publish(request):#,eventName=""
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     return render(
@@ -47,6 +54,7 @@ def publish(request):
             'title':'Publish event',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
+            # 'eventName':eventName,
         }
     )
 def pubStatus(request):
@@ -74,3 +82,16 @@ def admin(request):
             'year':datetime.now().year,
         }
     )
+
+def add(request):
+    """Saves form to db"""
+    if request.method == "POST":
+        form = AddEventForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, "webapp/createEvent.html",
+                        {
+                              'title': 'Create Event',
+                              'message': 'Your Event Creation Page',
+                              'year': datetime.now().year
+                        })

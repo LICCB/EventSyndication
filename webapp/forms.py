@@ -5,6 +5,9 @@ Definition of forms.
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
+from django.forms import ModelForm
+from webapp.models import EventInfo
+
 
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
@@ -16,3 +19,27 @@ class BootstrapAuthenticationForm(AuthenticationForm):
                                widget=forms.PasswordInput({
                                    'class': 'form-control',
                                    'placeholder':'Password'}))
+
+
+
+
+class AddEventForm(ModelForm):
+    """ModelForm for Add Event page."""
+    class Meta:
+        model = EventInfo
+        fields = [
+            "EventName",
+            "EventDescription",
+            "EventMeetLocation",
+            "EventDestination",
+            "EventStart",
+            "EventEnd"
+        ]
+        labels = {
+            "EventName":"Event Name",
+            "EventDescription":"Description",
+            "EventMeetLocation" : "Meet Location",
+            "EventDestination" : "Destination",
+            "EventStart" : "Start Time (MM/DD/YYYY HH:MM)",
+            "EventEnd" : "End Time (MM/DD/YYYY HH:MM)"
+        }

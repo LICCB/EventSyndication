@@ -6,7 +6,8 @@ var dummyEvents = [{ eventID: 1, eventName: 'Trip to Location A'},
 ];
 
 $(document).ready(function () {
-    populateDropDown();
+	document.getElementById('pubHeader').textContent="Publish "+sessionStorage.getItem('eventName');
+    //populateDropDown();
     //$('.dropdown-content li').on('click', function (e) {
     //    routeSelected(e);
     //});
@@ -18,6 +19,12 @@ $(document).ready(function () {
     //})
 }
 );
+$('#publishCheckAll').on('click',function (e){
+	if(e.target.checked)
+	$(':input[name="platform"]').prop('checked',true);
+else
+	$(':input[name="platform"]').prop('checked',false);
+});
 
 function populateDropDown() {
     var dropdown = document.getElementById("routeSelection");
