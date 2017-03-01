@@ -14,7 +14,7 @@ class EventInfo(models.Model):
     EventDestination = models.CharField(max_length=50)
     EventStart = models.DateTimeField()
     EventEnd = models.DateTimeField()
-    PostingID = models.IntegerField()
+    PostingID = models.IntegerField(default=0)
     def __unicode__(self):
         return self.EventName
 
@@ -26,7 +26,7 @@ class Postings(models.Model):
     MeetUp = models.BooleanField()
     EventBrite = models.BooleanField()
 
-	
+
     #EventName = models.CharField(max_length=50,'Event Name')
     #EventMeetLocation = models.CharField(max_length=50)
     #EventDestination = models.CharField(max_length=50)

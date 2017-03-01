@@ -24,10 +24,11 @@ class BootstrapAuthenticationForm(AuthenticationForm):
 
 
 class AddEventForm(ModelForm):
+    """ModelForm for Add Event page."""
     class Meta:
         model = EventInfo
         fields = [
-           "EventName",
+            "EventName",
             "EventDescription",
             "EventMeetLocation",
             "EventDestination",
@@ -39,6 +40,6 @@ class AddEventForm(ModelForm):
             "EventDescription":"Description",
             "EventMeetLocation" : "Meet Location",
             "EventDestination" : "Destination",
-            "EventStart" : "Start Date and Time",
-            "EventEnd" : "End Date and Time"
+            "EventStart" : "Start Time (MM/DD/YYYY HH:MM)",
+            "EventEnd" : "End Time (MM/DD/YYYY HH:MM)"
         }
