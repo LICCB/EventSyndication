@@ -12,7 +12,8 @@ from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
 from webapp.forms import AddEventForm
-from django.shortcuts import get_object_or_404,redirect
+from django.conf import settings
+from lib import facebook
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -82,6 +83,29 @@ def admin(request):
             'year':datetime.now().year,
         }
     )
+
+def apiKeys(request):
+    """Renders the API keys page"""
+    assert isinstance(request, HttpRequest)
+    facebook_code = request.GET.get('code')
+    if(facebook_code is None):
+        return render(
+            request,
+            'webapp/apiKeys.html',
+            {
+                'client_id': settings.FACEBOOK_SETTINGS['client_id']
+            }
+        )
+    else:
+        """Update facebook user access token with code"""
+        facebook.get_user_access_token(facebook_code, 'http://loopback.pizza:8000/eventsyndication/apiKeys')
+        return render(
+            request,
+            'webapp/apiKeys.html',
+            {
+                'client_id': settings.FACEBOOK_SETTINGS['client_id']
+            }
+        )
 
 def add(request):
     """Saves form to db"""
