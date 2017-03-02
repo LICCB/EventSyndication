@@ -4,16 +4,17 @@
 
 #def index(request):
 #    return render(request, 'webapp/main.html')
-"""
-Definition of views.
-"""
+# Definition of views.
+
 
 from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
 from webapp.forms import AddEventForm
 from django.conf import settings
-from lib import facebook
+from webapp.api_helpers import facebook
+from django.contrib import messages
+
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -34,17 +35,20 @@ def createEvent(request):
         form = AddEventForm(request.POST)
         if form.is_valid():
             form.save()
-        return redirect('publish')#,eventName=request.POST['EventName']
+            return render(request,'webapp/publish.html')#,eventName=request.POST['EventName']
+        else:
+            messages.error(request, "Error")
+
     return render(
-        request,
-        'webapp/createEvent.html',
-        {
-            'title':'Create Event',
-            'message':'Your Event Creation page.',
-            'year':datetime.now().year,
-            'form': form
-        }
-    )
+    request,
+    'webapp/createEvent.html',
+    {
+        'title':'Create Event',
+        'message':'Your Event Creation page.',
+        'year':datetime.now().year,
+        'form': form
+    }
+)
 def publish(request):#,eventName=""
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
@@ -114,8 +118,8 @@ def add(request):
         if form.is_valid():
             form.save()
             return render(request, "webapp/createEvent.html",
-                        {
+                          {
                               'title': 'Create Event',
                               'message': 'Your Event Creation Page',
                               'year': datetime.now().year
-                        })
+                          })
