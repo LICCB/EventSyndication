@@ -13,7 +13,8 @@ from django.http import HttpRequest
 from datetime import datetime
 from webapp.forms import AddEventForm
 from django.conf import settings
-from lib import facebook
+from api_helpers import facebook
+from models import ApiKey
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -88,24 +89,20 @@ def apiKeys(request):
     """Renders the API keys page"""
     assert isinstance(request, HttpRequest)
     facebook_code = request.GET.get('code')
-    if(facebook_code is None):
-        return render(
-            request,
-            'webapp/apiKeys.html',
-            {
-                'client_id': settings.FACEBOOK_SETTINGS['client_id']
-            }
-        )
-    else:
+    logout = request.GET.get('logout')
+    if(facebook_code is not None):
         """Update facebook user access token with code"""
         facebook.get_user_access_token(facebook_code, 'http://loopback.pizza:8000/eventsyndication/apiKeys')
-        return render(
+    if(logout is not None):
+        ApiKey.objects.filter(service = 'facebook_user_access_token').delete()
+    return render(
             request,
             'webapp/apiKeys.html',
             {
-                'client_id': settings.FACEBOOK_SETTINGS['client_id']
+            'client_id': settings.FACEBOOK_SETTINGS['client_id'],
+            'name': facebook.get_user_info()
             }
-        )
+            )
 
 def add(request):
     """Saves form to db"""

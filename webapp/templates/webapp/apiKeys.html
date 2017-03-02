@@ -6,8 +6,9 @@
     <h1 class="pageHeader">API Key Management Page</h1>
     <p>
     Facebook (Log out and log back in to update API Key)<br/>
-    Logout <br/>
-    <a href="https://www.facebook.com/v2.8/dialog/oauth?client_id={{ client_id }}&redirect_uri=http://loopback.pizza:8000/eventsyndication/apiKeys">Login</a>
+    <a href="apiKeys?logout=true">Logout</a> <br/>
+    <a href="https://www.facebook.com/v2.8/dialog/oauth?client_id={{ client_id }}&redirect_uri=http://loopback.pizza:8000/eventsyndication/apiKeys">Login</a> <br/>
+    Current user: {{name}} <br/>
     </p>
     </h1>
 </div>
