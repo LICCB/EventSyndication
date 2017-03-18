@@ -6,22 +6,6 @@ var dummyRoutes = [{ routeID: 1, routeName: 'TripA', eventType: 'Overnight', des
 { routeID: 4, routeName: 'Annual Fundraiser', eventType: 'Fundraiser', description: 'This is a description of the annual fundraiser', location: 'At location X' }
 ];
 
-$(document).ready(function () {
-    // populateDropDown();
-    // $('.dropdown-content li').on('click', function (e) {
-        // routeSelected(e);
-    // });
-    // $('input').on('input', function (e) {
-        // checkWetherToEnableButtons(e.target);
-    // });
-    // $('#Event_Description').on('input', function (e) {
-        // checkWetherToEnableButtons(e.target);
-    // })
-	$($('input[type="submit"][value="Submit"]')[0]).on('click',function(e){
-		sessionStorage.setItem('eventName',$('#id_EventName').val());
-	})
-}
-);
 
 function populateDropDown() {
     var dropdown = document.getElementById("routeSelection");

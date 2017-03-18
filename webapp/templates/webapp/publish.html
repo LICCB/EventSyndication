@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="card">
-		<h1 class="pageHeaders" id="pubHeader">Publish social Event </h1>
+    <h1 class="pageHeaders" id="pubHeader">Publish "{{request.POST.EventName}}"</h1>
 		<div class="cardBody"> 
 		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
 		<!-- <div style="display:inline">
@@ -37,9 +37,10 @@
         </ul>-->
     <!-- </div> -->
 			<!-- </div> -->
+        <br>
 		<br>
-		<br>
-		Choose on which platforms to publish:<!-- <i id="ename">Event Name</i> --><br>
+	    <p>The primary key of the event you just created is: {{ eventID }}</p>
+        Choose on which platforms to publish:<!-- <i id="ename">Event Name</i> --><br>
 		<!--<input type="checkbox" name="platform_All" value="All"> Publish on All platforms<br>-->
 			<input type="checkbox" name="publishAll" id="publishCheckAll"> All <br>
 			<input type="checkbox" name="platform" value="Facebook"> Facebook<br>

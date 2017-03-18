@@ -15,6 +15,7 @@ from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
 from webapp.models import ApiKey
+#from webapp.models import EventInfo
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -34,8 +35,8 @@ def createEvent(request):
     if request.method == "POST":
         form = AddEventForm(request.POST)
         if form.is_valid():
-            form.save()
-            return render(request,'webapp/publish.html')#,eventName=request.POST['EventName']
+            newEvent = form.save()
+            return render(request, 'webapp/publish.html', {'eventID': newEvent.pk})
         else:
             messages.error(request, "Error")
 
@@ -43,14 +44,14 @@ def createEvent(request):
     request,
     'webapp/createEvent.html',
     {
-        'title':'Create Event',
+        'title': 'Your Title',
         'message':'Your Event Creation page.',
         'year':datetime.now().year,
         'form': form
     }
 )
 def publish(request):#,eventName=""
-    """Renders the createEvent page."""
+    """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
     return render(
         request,
@@ -58,8 +59,7 @@ def publish(request):#,eventName=""
         {
             'title':'Publish event',
             'message':'Your Event Creation page.',
-            'year':datetime.now().year,
-            # 'eventName':eventName,
+            'year':datetime.now().year
         }
     )
 def pubStatus(request):
