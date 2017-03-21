@@ -11,47 +11,17 @@
                 <div id="currentPublish" value="-1">Event from last page/Choose Event</div>
                 <ul id="publishSelection" class="dropdown-content"></ul>
             </div> -->
-            
-       <!--<br>Event being published:<div class="dropDown">
-        <ul>
-            <li>Current Event Selected
-
-                <ul>
-                    <li>Unpublished event 1
-
-                    </li>
-                    <li>Unpublished event 2
-
-                    </li>
-                    <li>Unpublished event 3
-
-                    </li>
-                    <li>Unpublished event 4
-
-                    </li>
-                    <li>Unpublished event 5
-
-                    </li>
-                </ul>
-            </li>
-        </ul>-->
     <!-- </div> -->
 			<!-- </div> -->
         <br>
-		<br>
+        <form action="publish">
+            <table>
+                {% csrf_token %}
+                {{ form.as_table}}
+            </table>
+            <input type="submit" value="Syndicate">
+        </form>
 	    <p>The primary key of the event you just created is: {{ eventID }}</p>
-        Choose on which platforms to publish:<!-- <i id="ename">Event Name</i> --><br>
-		<!--<input type="checkbox" name="platform_All" value="All"> Publish on All platforms<br>-->
-			<input type="checkbox" name="publishAll" id="publishCheckAll"> All <br>
-			<input type="checkbox" name="platform" value="Facebook"> Facebook<br>
-            <input type="checkbox" name="platform" value="LICCB"> LICCB Blog<br>
-			<input type="checkbox" name="platform" value="EventBrite"> EventBrite<br>
-			<input type="checkbox" name="platform" value="Twitter"> Twitter<br>
-			<input type="checkbox" name="platform" value="GooglePlus"> GooglePlus<br>
-            <input type="checkbox" name="platform" value="GoogleCalendar"> GoogleCalendar<br>
-			<input type="checkbox" name="platform" value="MailChimp"> MailChimpr<br>
-			<div style="margin-top:20px">
-		<button style="margin-top:20px" id="PublishEvent_publish" class="submitButton"> Publish </button> <button id="PublishEvent_cancel" class="cancelButton"> Cancel </button> 
 		</div>
 	</div>
 	</div>

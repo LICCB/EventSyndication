@@ -1,5 +1,3 @@
-#from django.shortcuts import render
-
 # Create your views here.
 
 #def index(request):
@@ -11,11 +9,14 @@ from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
 from webapp.forms import AddEventForm
+from webapp.forms import PostingsForm
 from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
 from webapp.models import ApiKey
-#from webapp.models import EventInfo
+#from webapp.models import EvertInfo
+from webapp.models import Postings
+
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -36,7 +37,10 @@ def createEvent(request):
         form = AddEventForm(request.POST)
         if form.is_valid():
             newEvent = form.save()
-            return render(request, 'webapp/publish.html', {'eventID': newEvent.pk})
+            posting = Postings.objects.create(EventID = newEvent)
+            #Gotta add event to google calendar here
+            postingsFormInstance = PostingsForm(instance=posting)
+            return render(request, 'webapp/publish.html', {'eventID': newEvent.pk, 'form': postingsFormInstance, 'title': 'Publish Event'})
         else:
             messages.error(request, "Error")
 
@@ -50,15 +54,15 @@ def createEvent(request):
         'form': form
     }
 )
-def publish(request):#,eventName=""
+def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
+    form = PostingsForm()
     return render(
         request,
         'webapp/publish.html',
         {
-            'title':'Publish event',
-            'message':'Your Event Creation page.',
+            'form': form,
             'year':datetime.now().year
         }
     )

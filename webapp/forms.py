@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ModelForm
 from webapp.models import EventInfo
-
+from webapp.models import Postings
 
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
@@ -43,3 +43,15 @@ class AddEventForm(ModelForm):
             "EventStart" : "Start Time (MM/DD/YYYY HH:MM)",
             "EventEnd" : "End Time (MM/DD/YYYY HH:MM)"
         }
+
+class PostingsForm(ModelForm):
+    """Form for the user to select where the event should syndicate to"""
+    class Meta:
+        model = Postings
+        fields = [
+            "Facebook",
+            "MeetUp",
+            "EventBrite",
+            "GoogleCal",
+            "LICCB"
+        ]
