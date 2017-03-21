@@ -14,7 +14,7 @@ from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
 from webapp.models import ApiKey
-#from webapp.models import EvertInfo
+from webapp.models import EventInfo
 from webapp.models import Postings
 
 def home(request):
@@ -79,6 +79,20 @@ def publish(request):
 def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
+    events = EventInfo.objects.all()
+    if request.method == "POST":
+        event = events.get(id=request.POST.get('EventID'))
+        return render(
+            request,
+            'webapp/pubStatus.html',
+            {
+                'title':'Publication Status',
+                'message':'Your status',
+                'year':datetime.now().year,
+                'event': event,
+                'events': events
+            }
+        )
     return render(
         request,
         'webapp/pubStatus.html',
@@ -86,6 +100,7 @@ def pubStatus(request):
             'title':'Publication Status',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
+            'events': events
         }
     )
 

@@ -5,11 +5,23 @@
 <div class="card">
 		<h1 class="pageHeaders"> Publishing Status</h1>
 		<div class="cardBody"> 
-		<h3> Publishing: <i>Overnight Trip to East Point</i></h3>
+            {% if event.EventName %}
+            <h3> Status: {{event.EventName}}</h3>
+            {% endif %}
+        <br>
 		<br>
-		<br>
+        <form method="post" action="pubStatus">
+{% csrf_token %}
+        <select name="EventID">
+        {% for event in events %}
+        <option value="{{event.pk}}">{{event.EventName}}, {{event.EventStart}}</option>
+        {% endfor %}
+        </select>
+        <input type="submit" value="View Event">
+        </form>
 
-		<table border="1" text-align="center" id="pubStatusTable">
+        The event you selected is: {{event.pk}}
+        <table border="1" text-align="center" id="pubStatusTable">
 			<thead>
 				<tr>
 					<th> Selected? </th>
