@@ -14,7 +14,7 @@
     <!-- </div> -->
 			<!-- </div> -->
         <br>
-        <form action="publish">
+        <form action="publish" method="post">
             <table>
                 {% csrf_token %}
                 {{ form.as_table}}

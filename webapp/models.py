@@ -26,6 +26,12 @@ class Postings(models.Model):
     EventBrite = models.BooleanField(default=False)
     LICCB = models.BooleanField(default=False)
 
+    @classmethod
+    def create(cls, eventID):
+        posting = cls(EventID_id=eventID)
+        return posting
+
+
 class ApiKey(models.Model):
     """Model for an API key"""
     service = models.CharField(max_length=50)

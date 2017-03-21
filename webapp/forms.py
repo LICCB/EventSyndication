@@ -53,5 +53,9 @@ class PostingsForm(ModelForm):
             "MeetUp",
             "EventBrite",
             "GoogleCal",
-            "LICCB"
+            "LICCB",
+            "EventID"
         ]
+        widgets = {
+            'EventID': forms.HiddenInput
+        }

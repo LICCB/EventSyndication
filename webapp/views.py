@@ -37,10 +37,14 @@ def createEvent(request):
         form = AddEventForm(request.POST)
         if form.is_valid():
             newEvent = form.save()
-            posting = Postings.objects.create(EventID = newEvent)
+            posting = Postings.create(newEvent)
             #Gotta add event to google calendar here
             postingsFormInstance = PostingsForm(instance=posting)
-            return render(request, 'webapp/publish.html', {'eventID': newEvent.pk, 'form': postingsFormInstance, 'title': 'Publish Event'})
+            return render(request, 'webapp/publish.html', {
+                'eventID': newEvent.pk,
+                'form': postingsFormInstance,
+                'title': 'Publish Event'
+            })
         else:
             messages.error(request, "Error")
 
@@ -57,15 +61,21 @@ def createEvent(request):
 def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
-    form = PostingsForm()
-    return render(
-        request,
-        'webapp/publish.html',
-        {
-            'form': form,
-            'year':datetime.now().year
-        }
-    )
+    if request.method == "POST":
+        form = PostingsForm(request.POST)
+        if form.is_valid():
+            #CONNECT TO EVERYTHING AND POST EVERYTHING
+            #YOLO YOLO
+            #For now let's just save the postings table and call it a day.
+            form.save()
+            return render(
+                request,
+                'webapp/pubStatus.html',
+                {
+                    'form': form,
+                    'year':datetime.now().year
+                }
+            )
 def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
