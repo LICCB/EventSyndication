@@ -43,3 +43,14 @@ class ApiKey(models.Model):
         apiKey = cls(service = service, key = key)
         return apiKey
 
+class Services(models.Model):
+    """Information regarding all available syndication services."""
+    Name = models.CharField(max_length=50, blank=False)
+    IsEnabled = models.BooleanField(default=True, blank=False)
+
+class Publications(models.Model):
+    """New model that keeps track of all instances of event publication"""
+    EventID = models.ForeignKey(EventInfo, on_delete=models.CASCADE)
+    Service = models.CharField(max_length=50, blank=False)
+    Status = models.CharField(max_length=100)
+    url = models.CharField(max_length=500)
