@@ -8,7 +8,7 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
-
+syndication/settings.py
 ### .DS_Store ###
 *.DS_Store
 
