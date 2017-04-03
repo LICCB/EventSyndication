@@ -2,6 +2,9 @@
 
 {% block content %}
 
+{% load staticfiles %}
+<script src="{% static 'webapp/scripts/createEventPage/pageActions.js' %}"></script>
+
 <div class="card">
 		<h1 class="pageHeaders"> Create a Social Event </h1>
 		<div class="cardBody"> 
@@ -42,5 +45,4 @@
              <button id="CreateEvent_cancel" class="cancelButton"> Cancel </button>--> 
         </div>
 	</div>
-<script src="../../static/webapp/scripts/createEventPage/pageActions.js" type="text/javascript"></script>
 {% endblock %}
