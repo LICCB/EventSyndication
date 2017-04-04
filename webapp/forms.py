@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import ModelForm
 from webapp.models import EventInfo
 from webapp.models import Postings
-
+from webapp.models import Services
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
     username = forms.CharField(max_length=254,
@@ -59,3 +59,6 @@ class PostingsForm(ModelForm):
         widgets = {
             'EventID': forms.HiddenInput
         }
+
+class PublicationsForm(forms.Form):
+    services = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple, queryset = Services.objects.values_list('Name', flat=True))

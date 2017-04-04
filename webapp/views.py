@@ -9,13 +9,12 @@ from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
 from webapp.forms import AddEventForm
-from webapp.forms import PostingsForm
 from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
 from webapp.models import ApiKey
 from webapp.models import EventInfo
-from webapp.models import Postings
+from webapp.forms import PublicationsForm
 
 def home(request):
     """Renders the home page."""
@@ -37,9 +36,8 @@ def createEvent(request):
         form = AddEventForm(request.POST)
         if form.is_valid():
             newEvent = form.save()
-            posting = Postings.create(newEvent)
             #Gotta add event to google calendar here
-            postingsFormInstance = PostingsForm(instance=posting)
+            postingsFormInstance = PublicationsForm()
             return render(request, 'webapp/publish.html', {
                 'eventID': newEvent.pk,
                 'form': postingsFormInstance,
@@ -62,7 +60,7 @@ def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-        form = PostingsForm(request.POST)
+        form = PublicationsForm(request.POST)
         if form.is_valid():
             #CONNECT TO EVERYTHING AND POST EVERYTHING
             #YOLO YOLO
@@ -73,7 +71,9 @@ def publish(request):
                 'webapp/pubStatus.html',
                 {
                     'form': form,
-                    'year':datetime.now().year
+                    'year':datetime.now().year,
+                    'event': request.POST.get('EventID'),
+                    'events': EventInfo.objects.all()
                 }
             )
 def pubStatus(request):

@@ -17,7 +17,7 @@
         <form action="publish" method="post">
             <table>
                 {% csrf_token %}
-                {{ form.as_table}}
+                {{ form.as_p}}
             </table>
             <input type="submit" value="Syndicate">
         </form>
