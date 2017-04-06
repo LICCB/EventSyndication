@@ -5,11 +5,29 @@
 <div class="card">
 		<h1 class="pageHeaders"> Publishing Status</h1>
 		<div class="cardBody"> 
-            {% if event.EventName %}
-            <h3> Status: {{event.EventName}}</h3>
-            {% endif %}
-        <br>
+        {% if event %}
+        <h3> Status: {{event.EventName}}</h3>
 		<br>
+        {% if publications %}
+        <table id="publicationsTable">
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+                <th>URL</th>
+            </tr>
+            {% for publication in publications %}
+            <tr>
+                <td>{{publication.Service}}</td>
+                <td>{{publication.Status}}</td>
+                <td>{{publication.url}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <h5>There is no publication data for this event.</h5>
+        {% endif %}
+        {% endif %}
+        <br><br>
         <form method="post" action="pubStatus">
 {% csrf_token %}
         <select name="EventID">

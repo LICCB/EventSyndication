@@ -61,4 +61,9 @@ class PostingsForm(ModelForm):
         }
 
 class PublicationsForm(forms.Form):
-    services = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple, queryset = Services.objects.values_list('Name', flat=True))
+    def __init__(self, *args, **kwargs):
+        super(PublicationsForm, self).__init__(*args, **kwargs)
+        services = Services.objects.values_list('Name', flat=True)
+        for service in services:
+            self.fields[service] = forms.BooleanField(required=False)
+    EventID = forms.IntegerField(widget=forms.HiddenInput())

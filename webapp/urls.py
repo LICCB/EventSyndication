@@ -33,5 +33,6 @@ url(r'^$', views.home, name='home'),
             'next_page': '/',
         },
         name='logout'),
-    url(r'^apiKeys$', views.apiKeys, name='apiKeys')
+    url(r'^apiKeys$', views.apiKeys, name='apiKeys'),
+    url(r'^syndicate$', views.syndicate, name='syndicate')
 ]

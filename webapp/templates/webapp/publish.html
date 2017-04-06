@@ -5,19 +5,11 @@
 <div class="card">
     <h1 class="pageHeaders" id="pubHeader">Publish "{{request.POST.EventName}}"</h1>
 		<div class="cardBody"> 
-		<!-- <button class="dropDown"> <div class=dropDowncontent"> -->
-		<!-- <div style="display:inline">
-            <br> <div class="dropdown">
-                <div id="currentPublish" value="-1">Event from last page/Choose Event</div>
-                <ul id="publishSelection" class="dropdown-content"></ul>
-            </div> -->
-    <!-- </div> -->
-			<!-- </div> -->
         <br>
-        <form action="publish" method="post">
+        <form action="syndicate" method="post">
             <table>
                 {% csrf_token %}
-                {{ form.as_p}}
+                {{ form.as_table}}
             </table>
             <input type="submit" value="Syndicate">
         </form>

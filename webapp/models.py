@@ -54,3 +54,8 @@ class Publications(models.Model):
     Service = models.CharField(max_length=50, blank=False)
     Status = models.CharField(max_length=100)
     url = models.CharField(max_length=500)
+
+    @classmethod
+    def create(cls, EventID, Service):
+        publication=cls(EventID=EventID, Service=Service,Status='Pending')
+        return publication

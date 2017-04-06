@@ -14,7 +14,7 @@
         </div>
          <b style="margin-left:10px"> Or create a new one:</b><button class="NewTripButton" id= "CreateTrip"/> Create New Route</button>
          -->
-         <form method="post" action="createEvent"> {% csrf_token %}
+         <form method="post" action="publish"> {% csrf_token %}
              <table>
                  {{ form.as_p }}
             </table>
