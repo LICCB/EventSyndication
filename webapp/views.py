@@ -103,7 +103,7 @@ def syndicate(request):
 def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
-    events = EventInfo.objects.all()
+    events = EventInfo.objects.all().order_by('-EventStart')
     if request.method == "POST":
         event = events.get(id=request.POST.get('EventID'))
         postings = Publications.objects.filter(EventID=event)
@@ -119,6 +119,9 @@ def pubStatus(request):
                 'publications': postings
             }
         )
+
+    event = events.first()
+    postings = Publications.objects.filter(EventID=event)
     return render(
         request,
         'webapp/pubStatus.html',
@@ -126,7 +129,9 @@ def pubStatus(request):
             'title':'Publication Status',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
-            'events': events
+            'events': events,
+            'event': event,
+            'publications': postings
         }
     )
 

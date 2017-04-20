@@ -18,7 +18,7 @@ class EventInfo(models.Model):
 
 
 class Postings(models.Model):
-    """This table keeps track of where an event has been posted"""
+    """This table keeps track of where an event has been posted. DEPRECIATED"""
     EventID = models.ForeignKey(EventInfo, on_delete=models.CASCADE)
     GoogleCal = models.BooleanField(default=False)
     Facebook = models.BooleanField(default=False)
