@@ -6,7 +6,7 @@
 		<h1 class="pageHeaders"> Publishing Status</h1>
 		<div class="cardBody"> 
         {% if event %}
-        <h3> Status: {{event.EventName}}</h3>
+        <h3> Event: {{event.EventName}}</h3>
 		<br>
         {% if publications %}
         <table id="publicationsTable">
@@ -28,6 +28,7 @@
         {% endif %}
         {% endif %}
         <br><br>
+        <p>View a different event:</p>
         <form method="post" action="pubStatus">
 {% csrf_token %}
         <select name="EventID">
