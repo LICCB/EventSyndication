@@ -4,23 +4,72 @@
 #    return render(request, 'webapp/main.html')
 # Definition of views.
 
+#from __future__ import print_function
 
+from __future__ import print_function
+import traceback
+import sys
+import os
+import logging
+import httplib2
+
+from django import http
+#from googleapiclient.discovery import build
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.http import HttpRequest
 from datetime import datetime
+from oauth2client.contrib import xsrfutil
+from oauth2client.client import flow_from_clientsecrets
+#from oauth2client.contrib.django_orm import Storage
+from webapp.models import CredentialsModel
 from webapp.forms import AddEventForm
 from django.conf import settings
+from syndication import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
 from webapp.models import ApiKey
 from webapp.models import EventInfo
 from webapp.models import Publications
 from webapp.forms import PublicationsForm
+from oauth2client.contrib.django_util import decorators
 
+
+SECRETS_JSON = os.path.join(os.path.dirname(__file__), 'google_secret.json')
+
+FLOW = flow_from_clientsecrets(
+    SECRETS_JSON,
+    scope='https://www.googleapis.com/auth/plus.me',
+    redirect_uri='http://localhost:8000/oauth2callback')
+
+#@login_required(login_url='/eventsyndication/login/')
 def home(request):
-    """Renders the home page."""
-    assert isinstance(request, HttpRequest)
-    return render(
+  #print >>sys.stderr, 'Goodbye, cruel world!'
+  #storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+  #credential = storage.get()
+  #if credential is None or credential.invalid == True:
+  #  FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
+  #                                                 request.user)
+  #  authorize_url = FLOW.step1_get_authorize_url()
+  #  #print (authorize_url)
+  #  return HttpResponseRedirect(authorize_url)
+  #else:
+  #  http = httplib2.Http()
+  #  http = credential.authorize(http)
+  #  service = build("plus", "v1", http=http)
+  #  activities = service.activities()
+  #  activitylist = activities.list(collection='public',
+  #                                 userId='me').execute()
+  #  logging.info(activitylist)
+    print(get_profile_optional(request))
+    if(get_profile_optional(request)):
+       print('well yay me')
+       assert isinstance(request, HttpRequest)
+       return render(
         request,
         'webapp/index.html',
         {
@@ -28,6 +77,40 @@ def home(request):
             'year':datetime.now().year,
         }
     )
+    else:
+        print('well fuck me')
+        return get_profile_required(request)
+
+@decorators.oauth_required
+def get_profile_required(request):
+    print('test')
+    resp, content = request.oauth.http.request(
+        'https://www.googleapis.com/plus/v1/people/me')
+    return http.HttpResponse(content)
+
+
+@decorators.oauth_enabled
+def get_profile_optional(request):
+    if request.oauth.has_credentials():
+        # this could be passed into a view
+        # request.oauth.http is also initialized
+        #return http.HttpResponse('User email: {}'.format(
+        #    request.oauth.credentials.id_token['email']))
+        return True
+    #render(request,"webapp/index.html",{'email':request.oauth.credentials.id_token['email'],'name':request.oauth.credentials.id_token['displayName']})
+    else: return False
+        #return http.HttpResponse(
+        #    'Follow the link to login via google:<a href="{}">Login</a>'
+        #    .format(request.oauth.get_authorize_redirect()))
+@login_required
+def auth_return(request):
+  if not xsrfutil.validate_token(settings.SECRET_KEY, request.REQUEST['state'],
+                                 request.user):
+    return  HttpResponseBadRequest()
+  credential = FLOW.step2_exchange(request.REQUEST)
+  storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+  storage.put(credential)
+  return HttpResponseRedirect("/")
 
 def createEvent(request):
     """Renders the createEvent page."""
@@ -179,3 +262,6 @@ def add(request):
                               'message': 'Your Event Creation Page',
                               'year': datetime.now().year
                           })
+
+
+
