@@ -16,6 +16,7 @@ from webapp.models import ApiKey
 from webapp.models import EventInfo
 from webapp.models import Publications
 from webapp.forms import PublicationsForm
+from webapp.services.services import services
 
 def home(request):
     """Renders the home page."""
@@ -81,9 +82,10 @@ def syndicate(request):
             events = EventInfo.objects.all()
             event = events.get(id=request.POST.get('EventID'))
             for service in serviceList:
-                service = Publications.create(event, service)
-                service.save()
-            #SYNDDDDDIDCAATEEEEEEEEEEEEEE
+                publication = Publications.create(event, service)
+                publication = publication.save()
+                publishService = services[service]
+                publishService.publish(event)
             postings = Publications.objects.filter(EventID = event)
             return render(
                 request,
