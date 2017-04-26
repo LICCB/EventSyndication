@@ -163,6 +163,7 @@ def apiKeys(request):
             'webapp/apiKeys.html',
             {
             'client_id': settings.FACEBOOK_SETTINGS['client_id'],
+            'hostname': settings.SERVER_HOSTNAME,
             'name': facebook.get_user_info()
             }
             )
