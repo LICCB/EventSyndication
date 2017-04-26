@@ -5,103 +5,39 @@
 <div class="card">
 		<h1 class="pageHeaders"> Publishing Status</h1>
 		<div class="cardBody"> 
-		<h3> Publishing: <i>Overnight Trip to East Point</i></h3>
+        {% if event %}
+        <h3> Event: {{event.EventName}}</h3>
 		<br>
-		<br>
-
-		<table border="1" text-align="center" id="pubStatusTable">
-			<thead>
-				<tr>
-					<th> Selected? </th>
-					<th> Media Name </th>
-					<th> Published? </th>
-					<th> Link </th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>
-						<input type="checkbox" name="platform" value="Facebook" disabled="disabled">
-					</td>
-					<td>
-						Facebook
-					</td>
-					<td>
-						<input type="checkbox" name="platform" value="Facebook" disabled="disabled"> 
-					</td>
-					<td>
-					<a href="#" style="color:grey"> View event</a>
-						</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="checkbox" name="platform" value="Twitter" checked="checked" disabled="disabled">
-					</td>
-					<td>
-						Twitter
-					</td>
-					<td>
-						<input type="checkbox" name="platform" value="Twitter" checked="checked" disabled="disabled"> 
-					</td>
-					<td>
-					<a href="#"> View event</a>
-						</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="checkbox" name="platform" value="Google Plus" checked="checked" disabled="disabled">
-					</td>
-					<td>
-						Google Plus
-					</td>
-					<td>
-						<input type="checkbox" name="platform" value="Google Plus" checked="checked" disabled="disabled"/> 
-					</td>
-					<td>
-					<a href="#"> View event</a>
-						</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="checkbox" name="platform" value="Mail Chimp" disabled="disabled" checked="checked">
-					</td>
-					<td>
-						Mail Chimp
-					</td>
-					<td>
-						<input type="checkbox" name="platform" value="Facebook" disabled="disabled"> 
-					</td>
-					<td>
-					<a href="#" style="color:grey"> View event</a>
-						</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="checkbox" name="platform" value="Mail Chimp" disabled="disabled" checked="checked">
-					</td>
-					<td>
-						EventBrite
-					</td>
-					<td>
-						<input type="checkbox" name="platform" value="Facebook" disabled="disabled"> 
-					</td>
-					<td>
-					<a href="#" style="color:grey"> View event</a>
-						</td>
-				</tr>
-			</tbody>
-		</table>
-			<br />
-			<br />
-		<input id="NotifyMe" type="checkbox" /> Notify me when events are done publishing<br />
-			<br />
-			<div class="progress">
-  <div class="progress-bar" role="progressbar" aria-valuenow="70"
-  aria-valuemin="0" aria-valuemax="100" style="width:50%">
-    <span class="sr-only">50% Complete</span>
-  </div>
-</div>
-		<button id="CreateEvent_cancel" class="cancelButton"> Cancel </button> 
+        {% if publications %}
+        <table id="publicationsTable">
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+                <th>URL</th>
+            </tr>
+            {% for publication in publications %}
+            <tr>
+                <td>{{publication.Service}}</td>
+                <td>{{publication.Status}}</td>
+                <td>{{publication.url}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <h5>There is no publication data for this event.</h5>
+        {% endif %}
+        {% endif %}
+        <br><br>
+        <p>View a different event:</p>
+        <form method="post" action="pubStatus">
+{% csrf_token %}
+        <select name="EventID">
+        {% for event in events %}
+        <option value="{{event.pk}}">{{event.EventName}}, {{event.EventStart}}</option>
+        {% endfor %}
+        </select>
+        <input type="submit" value="View Event">
+        </form>
 		</div>
 	</div>
 {% endblock %}

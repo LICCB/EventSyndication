@@ -1,5 +1,3 @@
-#from django.shortcuts import render
-
 # Create your views here.
 
 #def index(request):
@@ -15,6 +13,10 @@ from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
 from webapp.models import ApiKey
+from webapp.models import EventInfo
+from webapp.models import Publications
+from webapp.forms import PublicationsForm
+
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -31,40 +33,95 @@ def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     form = AddEventForm()
-    if request.method == "POST":
-        form = AddEventForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request,'webapp/publish.html')#,eventName=request.POST['EventName']
-        else:
-            messages.error(request, "Error")
 
     return render(
     request,
     'webapp/createEvent.html',
     {
-        'title':'Create Event',
+        'title': 'Syndicate New Event',
         'message':'Your Event Creation page.',
         'year':datetime.now().year,
         'form': form
     }
 )
-def publish(request):#,eventName=""
-    """Renders the createEvent page."""
+def publish(request):
+    """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
-    return render(
-        request,
-        'webapp/publish.html',
-        {
-            'title':'Publish event',
-            'message':'Your Event Creation page.',
-            'year':datetime.now().year,
-            # 'eventName':eventName,
-        }
-    )
+    if request.method == "POST":
+        form = AddEventForm(request.POST)
+        if form.is_valid():
+            #CONNECT TO EVERYTHING AND POST EVERYTHING
+            #YOLO YOLO
+            #For now let's just save the postings table and call it a day.
+            newEvent = form.save()
+            publicationFormInstance = PublicationsForm(initial={'EventID': newEvent.pk})
+            return render(
+                request,
+                'webapp/publish.html',
+                {
+                    'form': publicationFormInstance,
+                    'year':datetime.now().year,
+                    'eventID':newEvent.pk,
+                    'event': request.POST.get('EventID'),
+                    'events': EventInfo.objects.all()
+                }
+            )
+        else:
+            messages.error(request, "Error")
+
+def syndicate(request):
+    """Renders the pubStatus page for a newly created event and attempts syndication"""
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+        form = PublicationsForm(request.POST)
+        if form.is_valid():
+            serviceList = request.POST.copy()
+            serviceList.pop("csrfmiddlewaretoken")
+            serviceList.pop("EventID")
+            events = EventInfo.objects.all()
+            event = events.get(id=request.POST.get('EventID'))
+            for service in serviceList:
+                service = Publications.create(event, service)
+                service.save()
+            #SYNDDDDDIDCAATEEEEEEEEEEEEEE
+            postings = Publications.objects.filter(EventID = event)
+            return render(
+                request,
+                'webapp/pubStatus.html',
+                {
+                    'title': 'Publication Status',
+                    'message': 'Event Syndication Status',
+                    'year': datetime.now().year,
+                    'events': events,
+                    'event': event,
+                    'publications': postings
+                }
+            )
+        else:
+            messages.error(request,"Error")
+
 def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
+    events = EventInfo.objects.all().order_by('-EventStart')
+    if request.method == "POST":
+        event = events.get(id=request.POST.get('EventID'))
+        postings = Publications.objects.filter(EventID=event)
+        return render(
+            request,
+            'webapp/pubStatus.html',
+            {
+                'title':'Publication Status',
+                'message':'Your status',
+                'year':datetime.now().year,
+                'event': event,
+                'events': events,
+                'publications': postings
+            }
+        )
+
+    event = events.first()
+    postings = Publications.objects.filter(EventID=event)
     return render(
         request,
         'webapp/pubStatus.html',
@@ -72,6 +129,9 @@ def pubStatus(request):
             'title':'Publication Status',
             'message':'Your Event Creation page.',
             'year':datetime.now().year,
+            'events': events,
+            'event': event,
+            'publications': postings
         }
     )
 
