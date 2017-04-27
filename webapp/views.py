@@ -102,8 +102,8 @@ def addIfNewUser(request):
            login(request, user)
 
 
-#@login_required(login_url='/eventsyndication/login')
-#@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
+@login_required(login_url='/eventsyndication/login')
+@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
@@ -116,6 +116,8 @@ def home(request):
         }
     )
 
+
+@permission_required('webapp.CreatePage_View', login_url='/eventsyndication/')
 def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
@@ -130,6 +132,8 @@ def createEvent(request):
         'form': form
     }
 )
+
+@permission_required('webapp.PublishPage_View', login_url='/eventsyndication/')
 def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
@@ -185,6 +189,8 @@ def syndicate(request):
         else:
             messages.error(request,"Error")
 
+            
+@permission_required('webapp.StatusPage_View', login_url='/eventsyndication/')
 def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
@@ -237,7 +243,7 @@ def admin(request):
             'year':datetime.now().year
         }
     )
-
+@permission_required('webapp.CanChangeAPIKeys', login_url='/eventsyndication/')
 def apiKeys(request):
     """Renders the API keys page"""
     assert isinstance(request, HttpRequest)
