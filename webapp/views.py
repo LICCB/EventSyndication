@@ -60,26 +60,15 @@ def mylogin(request):
        print('logged in, redirect to home')
        url = reverse('home')
        return HttpResponseRedirect(url)
-       #return render(
-       #  request,
-       # 'webapp/index.html',
-       # {
-       #     'title':'Syndication Tool',
-       #     'year':datetime.now().year,
-       # })
-       #home(request)
+
     """Renders the login page."""
+    #if user click login button
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
        #print('Entered post')
        return get_profile_required(request)
-       return render(
-         request,
-        'webapp/index.html',
-        {
-            'title':'Syndication Tool',
-            'year':datetime.now().year,
-        })
+       return HttpResponseRedirect('home')
+   #load login page
     return render(
         request,
         'webapp/login.html',
@@ -93,32 +82,6 @@ def mylogin(request):
 @login_required(login_url='/eventsyndication/login')
 def home(request):
 
-  #print >>sys.stderr, 'Goodbye, cruel world!'
-  #storage = Storage(CredentialsModel, 'id', request.user, 'credential')
-  #credential = storage.get()
-  #if credential is None or credential.invalid == True:
-  #  FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
-  #                                                 request.user)
-  #  authorize_url = FLOW.step1_get_authorize_url()
-  #  #print (authorize_url)
-  #  return HttpResponseRedirect(authorize_url)
-  #else:
-  #  http = httplib2.Http()
-  #  http = credential.authorize(http)
-  #  service = build("plus", "v1", http=http)
-  #  activities = service.activities()
-  #  activitylist = activities.list(collection='public',
-  #                                 userId='me').execute()
-  #  logging.info(activitylist)
-    #if User.objects.filter(username='test').exists():
-    #    print('user exists')
-    #else:
-    # x=User.objects.create_user('test')
-    # x.save()
-    #print(isUserLoggedIn(request))
-    #print(User.is_authenticated)
-
-    #if(isUserLoggedIn(request)):
        print('hit home')
        assert isinstance(request, HttpRequest)
        return render(
@@ -129,24 +92,7 @@ def home(request):
             'year':datetime.now().year,
         }
     )
-    #else:
-        #return get_profile_required(request)
-        #return render(
-        #request,
-        #'webapp/index.html',
-        #{
-        #    'title':'Syndication Tool',
-        #    'year':datetime.now().year,
-        #})
-        #return render(
-        #request,
-        #'webapp/index.html',
-        #{
-        #    'title':'Syndication Tool',
-        #    'year':datetime.now().year,
-        #    'user':get_profile_required(request)
-        #})
-
+ 
 @decorators.oauth_required
 def get_profile_required(request):
     resp, content = request.oauth.http.request(
@@ -160,16 +106,9 @@ def get_profile_required(request):
 @decorators.oauth_enabled
 def isUserLoggedIn(request):
     if request.oauth.has_credentials():
-        # this could be passed into a view
-        # request.oauth.http is also initialized
-        #return http.HttpResponse('User email: {}'.format(
-        #    request.oauth.credentials.id_token['email']))
         return True
-    #render(request,"webapp/index.html",{'email':request.oauth.credentials.id_token['email'],'name':request.oauth.credentials.id_token['displayName']})
     else: return False
-        #return http.HttpResponse(
-        #    'Follow the link to login via google:<a href="{}">Login</a>'
-        #    .format(request.oauth.get_authorize_redirect()))
+
 
 @decorators.oauth_enabled
 def addIfNewUser(request):
