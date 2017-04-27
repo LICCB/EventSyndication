@@ -23,28 +23,42 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect
 from django.http import HttpRequest
 from datetime import datetime
-from oauth2client.contrib import xsrfutil
-from oauth2client.client import flow_from_clientsecrets
+#from oauth2client.contrib import xsrfutil
+#from oauth2client.client import flow_from_clientsecrets
 #from oauth2client.contrib.django_orm import Storage
 #from webapp.models import CredentialsModel
-from webapp.models import LICCB_User
-from webapp.forms import AddEventForm
+
 from django.conf import settings
 from syndication import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
+
+
+#Our models and forms
+from webapp.models import LICCB_User
 from webapp.models import ApiKey
 from webapp.models import EventInfo
 from webapp.models import Publications
-from webapp.forms import PublicationsForm
-from oauth2client.contrib.django_util import decorators
-from django.contrib.auth import logout
+from webapp.models import GlobalPermissions
 
+from webapp.forms import AddGroupForm
+from webapp.forms import AddEventForm
+from webapp.forms import PublicationsForm
+#Needed for google auth
+from oauth2client.contrib.django_util import decorators
+#needed for user control and authentication
+from django.contrib.auth.models import User
+from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
+# Needed for permission control
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
+
 
 import pdb; 
 
-from django.contrib.auth.models import User
+
 
 #SECRETS_JSON = os.path.join(os.path.dirname(__file__), 'google_secret.json')
 
@@ -52,6 +66,7 @@ from django.contrib.auth.models import User
 #    SECRETS_JSON,
 #    scope='https://www.googleapis.com/auth/plus.me',
 #    redirect_uri='http://localhost:8000/oauth2callback')
+
 
 
 def mylogin(request):
@@ -76,13 +91,25 @@ def mylogin(request):
             'title':'Login',
             'message':'Your application description page.',
             'year':datetime.now().year,
+            
         })
 
-
 @login_required(login_url='/eventsyndication/login')
+#@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
 def home(request):
 
        print('hit home')
+       print(request.user)
+       print('Does user have canlogin perm?',request.user.has_perm('webapp.CanLogin'))
+
+       content_type = ContentType.objects.get_for_model(GlobalPermissions)
+       permission = Permission.objects.get(content_type=content_type, codename='CanLogin')
+
+       if(request.user.has_perm('webapp.CanLogin')):
+           print('user has perm')
+       else:
+           print('user does not have perm')
+           request.user.user_permissions.add(permission)
        assert isinstance(request, HttpRequest)
        return render(
         request,
@@ -115,7 +142,11 @@ def addIfNewUser(request):
     if request.oauth.has_credentials():
        #print(request.oauth.credentials.id_token.items())
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
-          print('user exists')
+           updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
+           print('user exists') 
+           updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
+           updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
+           updateNameInfo.save()         
        else:
          newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'hashedEmail')
          newUser.first_name=request.oauth.credentials.id_token['given_name']
@@ -289,3 +320,45 @@ def add(request):
 def logout_view(request):
    logout(request)
    return HttpResponseRedirect('login')
+
+def group_View(request):
+    print('My groups ',request.user.groups.all())
+    form = AddGroupForm()
+    print('hit right view')
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+        print('Hit post')
+        form = AddGroupForm(request.POST)
+        if form.is_valid():
+            #new_group, created = Group.objects.get_or_create(name=form.groupName)
+            print(form.cleaned_data.get('groupName'))
+            print(form.cleaned_data.get('Children'))
+            userEmails=form.cleaned_data.get('Children').split(",")
+            print('About to create group')
+            #Creates a group if its new
+            #stanislavgrozny@gmail.com
+            new_group, created = Group.objects.get_or_create(name=form.cleaned_data.get('groupName'))
+            new_group.save()
+            for userEmail in userEmails:
+               if User.objects.filter(username=userEmail).exists():
+                  user =User.objects.filter(username=userEmail)
+                  print('about to add group')
+                  group = Group.objects.get(name=form.cleaned_data.get('groupName'))
+                  request.user.groups.add(group)
+               else:
+                   #create a user for the future
+                  newUser=User.objects.create_user(userEmail,userEmail,'hashedEmail')
+                  newUser.save()
+            return HttpResponseRedirect('groupManagement') 
+        else:
+            messages.error(request, "Error")
+    return render(
+    request,
+    'webapp/groupManagement.html',
+    {
+        'title': 'Manage Groups',
+        'message':'Your Group Management page.',
+        'year':datetime.now().year,
+        'form': form,
+        'groups':Group.objects.all()
+    })

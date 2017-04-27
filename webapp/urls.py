@@ -21,40 +21,17 @@ url(r'^$', views.home, name='home'),
 	url(r'^pubStatus', views.pubStatus, name='pubStatus'),
     url(r'^login$',
         views.mylogin,
-        #{
-        #    'template_name': 'webapp/login.html',
-        #    #'authentication_form': forms.BootstrapAuthenticationForm,
-        #    #'extra_context':
-        #    #{
-        #    #    'title': 'Log in',
-        #    #    'year': datetime.now().year,
-        #    #}
-        #},
         name='login'
         ),
       url(r'^logout$',
         views.logout_view,
-        #{
-        #    'template_name': 'webapp/login.html',
-        #    #'authentication_form': forms.BootstrapAuthenticationForm,
-        #    #'extra_context':
-        #    #{
-        #    #    'title': 'Log in',
-        #    #    'year': datetime.now().year,
-        #    #}
-        #},
         name='logout'
         ),
-    #url(r'^logout$',
-    #    django.contrib.auth.views.logout,
-    #    {
-    #        'next_page': '/',
-    #    },
-    #    name='logout'),
     url(r'^apiKeys$', views.apiKeys, name='apiKeys'),
     url(r'^syndicate$', views.syndicate, name='syndicate'),
    url(r'^profile_required$', views.get_profile_required),
-    #url(r'^profile_enabled$', views.get_profile_optional),
+   
+    url(r'^groupManagement$',views.group_View, name='groupManagement'),
     url(r'^oauth2/', urls.include(django_util_site.urls))
     #,
      #url(r'^accounts/login/$', 'django.contrib.auth.views.login',

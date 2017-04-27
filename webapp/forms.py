@@ -20,7 +20,10 @@ class BootstrapAuthenticationForm(AuthenticationForm):
                                    'class': 'form-control',
                                    'placeholder':'Password'}))
 
-
+class AddGroupForm(forms.Form):
+    """ModelForm for Add group page."""
+    groupName=forms.CharField(label='Group Name', max_length=50)
+    Children=forms.CharField(label='Comma delimited users',max_length=256)   
 
 
 class AddEventForm(ModelForm):

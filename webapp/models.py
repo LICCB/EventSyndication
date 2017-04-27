@@ -47,6 +47,27 @@ class LICCB_Relationship(models.Model):
     childId=models.IntegerField()
     childType=models.IntegerField()
 
+class GlobalPermissions(models.Model):
+
+    class Meta:
+        managed = False  # No database table creation or deletion operations \
+                         # will be performed for this model. 
+
+        permissions = ( 
+            ('CanLogin', 'Allows user to login'),  
+            ('CreatePage_View', 'Can view the create page'), 
+            ('CreatePage_Action', 'Can create events'), 
+            ('PublishPage_View', 'Can view publish page'),  
+            ('PublishPage_Action', 'Can publish events'), 
+            ('StatusPage_View', 'Can view status of events'), 
+            ('StatusPage_Edit', 'Can edit posted events'),  
+            ('StatusPage_Delete', 'Can  delete posted events'), 
+            ('CanChangePermissions', 'can change permissions'),  
+            ('CanChangeGroups', 'Can change groups'), 
+            ('CanChangeAPIKeys', 'Can change API keys'),
+            ('CanViewLogs', 'Can view logs')
+        )
+
 class EventInfo(models.Model):
 
     """ This table will store the skeleton information about an event. To allow for

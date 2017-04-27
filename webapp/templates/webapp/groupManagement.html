@@ -1,0 +1,54 @@
+﻿{% extends "webapp/layout.html" %}
+
+{% block content %}
+
+<div class="card">
+    <h1 class="pageHeaders"> Add A Group </h1>
+    <div class="cardBody">
+        <br>
+        <br>
+        <form method="post" action="groupManagement">
+            {% csrf_token %}
+            
+
+              <!--{{ form.as_p }}-->
+            <label for="groupName">Group Name</label>
+            <input id="id_groupName" maxlength="256" name="grpupName" />
+            <br />
+            <label for="Children">Comma delimited list of users: </label>
+            <textarea id="Children" name="Children" maxlength="1024" required></textarea>
+            <br />
+            <br />
+            <input type="submit" value="Add Group">
+        </form>
+    </div>
+</div>
+<div class="card">
+    <h1 class="pageHeaders"> Edit Groups </h1>
+    <div class="cardBody">
+        <br>
+        <br />
+        <form method="post" action="groupManagement">
+            {% csrf_token %}
+            <select name="groupName">
+                {% for group in groups %}
+
+                <option value="{{group}}">{{group}}</option>
+
+                {% endfor %}
+            </select>
+            <div id="test">
+                <!--{{ form.as_p }}-->
+                <input id="id_groupName" maxlength="256" name="grpupName" type="hidden" />
+                <br />
+                <label for="Children">Comma delimited list of users: </label>
+                <textarea style="width:50%" id="Children" name="Children" maxlength="1024" required></textarea>
+            </div>
+            <br />
+            <input type="submit" value="Edit Group">
+            <!--<button id="deleteGroup">Delete Group</button>-->
+        </form>
+    </div>
+</div>
+<!--<script src="../../static/webapp/scripts/createEventPage/pageActions.js" type="text/javascript"></script>-->
+    {% endblock %}
