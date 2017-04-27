@@ -404,7 +404,7 @@ def role_View(request):
     })
 
 def setGroupPermissions(myGroup,roleInfo):
-    myGroup.permissions.clear()
+    #myGroup.permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
     
     for permName in ['CanLogin',  
@@ -425,7 +425,7 @@ def setGroupPermissions(myGroup,roleInfo):
          myGroup.permissions.add(permission)
 
 def setUserPermissions(myUser,roleInfo):
-    myUser.user_permissions.clear()
+    #myUser.user_permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
     
     for permName in ['CanLogin',  
@@ -441,11 +441,32 @@ def setUserPermissions(myUser,roleInfo):
             'CanChangeAPIKeys', 
             'CanViewLogs']:
        if(roleInfo.get(permName)):
-        print(myUser,' has ' ,permName) 
         permission = Permission.objects.get(content_type=content_type, codename=permName)
         myUser.user_permissions.add(permission)
 
+#for dev to clean out temp groups and roles, as well as perms and users
 def cleanData():
     User.objects.all().delete()
     Group.objects.all().delete()
-    LICCB_Role.objects.all().delete()     
+    LICCB_Role.objects.all().delete()  
+     
+#for Dev to let your user have all perms
+def giveAllPerms(username):
+      myUser = User.objects.get(username=username)
+      myUser.user_permissions.clear()
+      content_type = ContentType.objects.get_for_model(GlobalPermissions)
+    
+      for permName in ['CanLogin',  
+           'CreatePage_View', 
+            'CreatePage_Action',
+            'PublishPage_View', 
+            'PublishPage_Action', 
+            'StatusPage_View',
+            'StatusPage_Edit', 
+            'StatusPage_Delete',
+            'CanChangePermissions', 
+            'CanChangeGroups', 
+            'CanChangeAPIKeys', 
+            'CanViewLogs']:
+        permission = Permission.objects.get(content_type=content_type, codename=permName)
+        myUser.user_permissions.add(permission)
