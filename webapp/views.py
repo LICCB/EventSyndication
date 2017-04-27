@@ -1,10 +1,3 @@
-# Create your views here.
-
-#def index(request):
-#    return render(request, 'webapp/main.html')
-# Definition of views.
-
-
 from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
@@ -17,6 +10,9 @@ from webapp.models import EventInfo
 from webapp.models import Publications
 from webapp.forms import PublicationsForm
 from webapp.services.services import services
+import logging
+
+logger = logging.getLogger(__name__)
 
 def home(request):
     """Renders the home page."""
@@ -34,7 +30,6 @@ def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     form = AddEventForm()
-
     return render(
     request,
     'webapp/createEvent.html',

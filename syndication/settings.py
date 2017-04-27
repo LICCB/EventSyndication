@@ -149,3 +149,42 @@ FACEBOOK_SETTINGS = {
 }
 
 SERVER_HOSTNAME = env('SERVER_HOSTNAME')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(levelname)s][%(module)s]-%(asctime)s: %(message)s',
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': 'logs/django.log',
+            'when': 'midnight',
+            'backupCount': '30',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'propagate': True,
+            'level': 'INFO'
+        },
+        'webapp': {
+            'handlers': ['file', 'console'],
+            'propagate': True,
+            'level': 'DEBUG'
+        },
+    },
+}
+
