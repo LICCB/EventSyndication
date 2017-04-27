@@ -13,19 +13,24 @@
             <tr>
                 <th>Service</th>
                 <th>Status</th>
-                <th>URL</th>
+                <th>Link</th>
             </tr>
             {% for publication in publications %}
             <tr>
                 <td>{{publication.Service}}</td>
                 <td>{{publication.Status}}</td>
-                <td>{{publication.url}}</td>
+                <td>{% if publication.url %}<a href="{{publication.url}}">View</a>{% endif %}</td>
             </tr>
             {% endfor %}
         </table>
         {% else %}
         <h5>There is no publication data for this event.</h5>
         {% endif %}
+        <br>
+        <form action="publish" method="post"> {% csrf_token %}
+            <input type="hidden" name="delayedSyndication" value="true"/>
+            <button name="EventID" type="submit" value="{{event.pk}}">Make New Publications</button>
+        </form>
         {% endif %}
         <br><br>
         <p>View a different event:</p>

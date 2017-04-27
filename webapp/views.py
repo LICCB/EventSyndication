@@ -43,27 +43,25 @@ def createEvent(request):
 def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
-    if request.method == "POST":
+    if request.method == "POST" and request.POST.get('delayedSyndication') == "true":
+        publicationFormInstance = PublicationsForm(initial={'EventID': request.POST.get('EventID')})
+        event = EventInfo.objects.get(id=request.POST.get('EventID'))
+    elif request.method == "POST":
         form = AddEventForm(request.POST)
         if form.is_valid():
-            #CONNECT TO EVERYTHING AND POST EVERYTHING
-            #YOLO YOLO
-            #For now let's just save the postings table and call it a day.
-            newEvent = form.save()
-            publicationFormInstance = PublicationsForm(initial={'EventID': newEvent.pk})
-            return render(
-                request,
-                'webapp/publish.html',
-                {
-                    'form': publicationFormInstance,
-                    'year':datetime.now().year,
-                    'eventID':newEvent.pk,
-                    'event': request.POST.get('EventID'),
-                    'events': EventInfo.objects.all()
-                }
-            )
+            event = form.save()
+            publicationFormInstance = PublicationsForm(initial={'EventID': event.pk})
         else:
             messages.error(request, "Error")
+    return render(
+        request,
+        'webapp/publish.html',
+        {
+            'form': publicationFormInstance,
+            'year':datetime.now().year,
+            'event': event,
+        }
+    )
 
 def syndicate(request):
     """Renders the pubStatus page for a newly created event and attempts syndication"""
