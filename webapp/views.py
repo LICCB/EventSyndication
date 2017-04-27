@@ -101,6 +101,9 @@ def addIfNewUser(request):
            #print('logging in user')
            login(request, user)
 
+def logout_view(request):
+   logout(request)
+   return HttpResponseRedirect('login')
 
 @login_required(login_url='/eventsyndication/login')
 @permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
@@ -276,3 +279,159 @@ def add(request):
                               'message': 'Your Event Creation Page',
                               'year': datetime.now().year
                           })
+
+@permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
+def group_View(request):
+    print('My groups ',request.user.groups.all())
+    form = AddGroupForm()
+    print('hit right view')
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+        print('Hit post')
+        form = AddGroupForm(request.POST)
+        if form.is_valid():
+            #new_group, created = Group.objects.get_or_create(name=form.groupName)
+            print(form.cleaned_data.get('groupName'))
+            print(form.cleaned_data.get('Children'))
+            userEmails=form.cleaned_data.get('Children').split(",")
+            print('About to create group')
+            #Creates a group if its new
+            #stanislavgrozny@gmail.com
+            new_group, created = Group.objects.get_or_create(name=form.cleaned_data.get('groupName'))
+            new_group.save()
+            for userEmail in userEmails:
+               if User.objects.filter(username=userEmail).exists():
+                  user =User.objects.filter(username=userEmail)
+                  print('about to add group')
+                  group = Group.objects.get(name=form.cleaned_data.get('groupName'))
+                  request.user.groups.add(group)
+               else:
+                   #create a user for the future
+                  newUser=User.objects.create_user(userEmail,userEmail,'tempPass')
+                  newUser.save()
+            return HttpResponseRedirect('groupManagement') 
+        else:
+            messages.error(request, "Error")
+    return render(
+    request,
+    'webapp/groupManagement.html',
+    {
+        'title': 'Manage Groups',
+        'message':'Your Group Management page.',
+        'year':datetime.now().year,
+        'form': form,
+        'groups':Group.objects.all()
+    })
+
+@permission_required('webapp.CanChangePermissions', login_url='/eventsyndication/')
+def role_View(request):
+    #print('My groups ',request.user.groups.all())
+    form = AddRoleForm()
+    print(LICCB_Role.objects.all())
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+        #print('Hit role post')
+        form = AddRoleForm(request.POST)
+        if form.is_valid():
+            #print('valid form')
+            roleInfo=form.cleaned_data
+            print(roleInfo.items())
+            userList=roleInfo.get('Users').split(",")
+            groupList=roleInfo.get('Groups').split(",")
+            for group in groupList:
+                   print(group)
+                   new_group, created = Group.objects.get_or_create(name=group)
+                   #group = Group.objects.get(name=group)
+                   setGroupPermissions(new_group,roleInfo)
+            for user in userList:
+                   print(user)
+                   new_User, created = User.objects.get_or_create(username=user)
+                   new_User.set_password('tempPass')
+                   new_User.save()
+                   nUser = User.objects.get(username=user)
+                   print(nUser)
+                   setUserPermissions(nUser,roleInfo)
+            form.save()
+
+            return HttpResponseRedirect('roleManagement') 
+        else:
+            print('error message')
+            messages.error(request, "Error")
+    return render(
+    request,
+    'webapp/roleManagement.html',
+    {
+        'title': 'Manage Roles',
+        'message':'Your Role Management page.',
+        'year':datetime.now().year,
+        'form': form,
+        'groups':Group.objects.all()
+    })
+
+def setGroupPermissions(myGroup,roleInfo):
+    #myGroup.permissions.clear()
+    content_type = ContentType.objects.get_for_model(GlobalPermissions)
+    
+    for permName in ['CanLogin',  
+           'CreatePage_View', 
+            'CreatePage_Action',
+            'PublishPage_View', 
+            'PublishPage_Action', 
+            'StatusPage_View',
+            'StatusPage_Edit', 
+            'StatusPage_Delete',
+            'CanChangePermissions', 
+            'CanChangeGroups', 
+            'CanChangeAPIKeys', 
+            'CanViewLogs']:
+       if(roleInfo.get(permName)):
+         print(mygroup,' has ' ,permName) 
+         permission = Permission.objects.get(content_type=content_type, codename=permName)
+         myGroup.permissions.add(permission)
+
+def setUserPermissions(myUser,roleInfo):
+    #myUser.user_permissions.clear()
+    content_type = ContentType.objects.get_for_model(GlobalPermissions)
+    
+    for permName in ['CanLogin',  
+           'CreatePage_View', 
+            'CreatePage_Action',
+            'PublishPage_View', 
+            'PublishPage_Action', 
+            'StatusPage_View',
+            'StatusPage_Edit', 
+            'StatusPage_Delete',
+            'CanChangePermissions', 
+            'CanChangeGroups', 
+            'CanChangeAPIKeys', 
+            'CanViewLogs']:
+       if(roleInfo.get(permName)):
+        permission = Permission.objects.get(content_type=content_type, codename=permName)
+        myUser.user_permissions.add(permission)
+
+#for dev to clean out temp groups and roles, as well as perms and users
+def cleanData():
+    User.objects.all().delete()
+    Group.objects.all().delete()
+    LICCB_Role.objects.all().delete()  
+     
+#for Dev to let your user have all perms
+def giveAllPerms(username):
+      myUser = User.objects.get(username=username)
+      myUser.user_permissions.clear()
+      content_type = ContentType.objects.get_for_model(GlobalPermissions)
+    
+      for permName in ['CanLogin',  
+           'CreatePage_View', 
+            'CreatePage_Action',
+            'PublishPage_View', 
+            'PublishPage_Action', 
+            'StatusPage_View',
+            'StatusPage_Edit', 
+            'StatusPage_Delete',
+            'CanChangePermissions', 
+            'CanChangeGroups', 
+            'CanChangeAPIKeys', 
+            'CanViewLogs']:
+        permission = Permission.objects.get(content_type=content_type, codename=permName)
+        myUser.user_permissions.add(permission)
