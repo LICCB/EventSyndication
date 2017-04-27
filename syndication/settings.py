@@ -22,6 +22,8 @@ from envparse import env
 # facebook ---
 # FACEBOOK_CLIENT_ID - client_id for facebook application
 # FACEBOOK_CLIENT_SECRET - secret used for facebook application
+# GOOGLE_OAUTH2_CLIENT_ID -client_id for google application
+# GOOGLE_OAUTH2_CLIENT_SECRET - secret used for google application
 
 #OPTIONAL ENVIRONMENT VARIABLES:
 # debug ---
