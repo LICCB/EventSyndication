@@ -41,6 +41,69 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def mylogin(request):
+    if(isUserSignedIntoGoogle(request)):
+       addIfNewUser(request)
+       #print('logged in, redirect to home')
+       url = reverse('home')
+       return HttpResponseRedirect(url)
+
+    """Renders the login page."""
+    #if user click login button
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+       #print('Entered post')
+       return get_profile_required(request)
+       return HttpResponseRedirect('home')
+   #load login page
+    return render(
+        request,
+        'webapp/login.html',
+        {
+            'title':'Login',
+            'message':'Your application description page.',
+            'year':datetime.now().year,
+            
+        })
+
+@decorators.oauth_required
+def get_profile_required(request):
+    resp, content = request.oauth.http.request(
+        'https://www.googleapis.com/plus/v1/people/me')
+    return http.HttpResponse(content)
+
+@decorators.oauth_enabled
+def isUserSignedIntoGoogle(request):
+    if request.oauth.has_credentials():
+        return True
+    else: return False
+
+
+@decorators.oauth_enabled
+def addIfNewUser(request):
+    if request.oauth.has_credentials():
+       #print(request.oauth.credentials.id_token.items())
+       if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
+           updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
+           # print('user exists') 
+		   ## Update the users name ( in the case that the user was created through group/role management pages)
+           updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
+           updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
+           updateNameInfo.save()         
+       else:
+	   #Create a new user from the logged in google info
+         newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'tempPass')
+         newUser.first_name=request.oauth.credentials.id_token['given_name']
+         newUser.last_name=request.oauth.credentials.id_token['family_name']
+         newUser.save()
+       user = authenticate(username=request.oauth.credentials.id_token['email'], password='tempPass')
+       if user is not None:
+           #print('logging in user')
+           login(request, user)
+
+
+#@login_required(login_url='/eventsyndication/login')
+#@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
