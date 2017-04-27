@@ -115,10 +115,6 @@ def home(request):
 def get_profile_required(request):
     resp, content = request.oauth.http.request(
         'https://www.googleapis.com/plus/v1/people/me')
-    #
-    print('calling addIfNewUser')
-    #addIfNewUser(request)
-    #return content
     return http.HttpResponse(content)
 
 @decorators.oauth_enabled
@@ -134,11 +130,13 @@ def addIfNewUser(request):
        #print(request.oauth.credentials.id_token.items())
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
            updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
-           print('user exists') 
+           # print('user exists') 
+		   ## Update the users name ( in the case that the user was created through group/role management pages)
            updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
            updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
            updateNameInfo.save()         
        else:
+	   #Create a new user from the logged in google info
          newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'tempPass')
          newUser.first_name=request.oauth.credentials.id_token['given_name']
          newUser.last_name=request.oauth.credentials.id_token['family_name']
@@ -171,7 +169,8 @@ def createEvent(request):
         'title': 'Syndicate New Event',
         'message':'Your Event Creation page.',
         'year':datetime.now().year,
-        'form': form
+        'form': form,
+		'canAction':request.user.has_perm('webapp.CreatePage_Action')
     }
 )
 @permission_required('webapp.PublishPage_View', login_url='/eventsyndication/')
@@ -181,7 +180,8 @@ def publish(request):
     if request.method == "POST":
         form = AddEventForm(request.POST)
         if form.is_valid():
-            #CONNECT TO EVERYTHING AND POST EVERYTHING
+          if(request.user.has_perm('webapp.CreatePage_Action')):  
+			#CONNECT TO EVERYTHING AND POST EVERYTHING
             #For now let's just save the postings table and call it a day.
             newEvent = form.save()
             publicationFormInstance = PublicationsForm(initial={'EventID': newEvent.pk})
@@ -193,10 +193,24 @@ def publish(request):
                     'year':datetime.now().year,
                     'eventID':newEvent.pk,
                     'event': request.POST.get('EventID'),
-                    'events': EventInfo.objects.all()
+                    'events': EventInfo.objects.all(),
+					'canAction':request.user.has_perm('webapp.PublishPage_Action')
                 }
             )
-        else:
+		 
+          else:
+		    return render(
+    request,
+    'webapp/createEvent.html',
+    {
+        'title': 'Syndicate New Event',
+        'message':'Your Event Creation page.',
+        'year':datetime.now().year,
+        'form': AddEventForm(),
+		'canAction':request.user.has_perm('webapp.CreatePage_Action'),
+		'erroMsg' : 'You do not have the necessary permissions to create events' 
+    }
+		else:
             messages.error(request, "Error")
 
 
@@ -204,7 +218,8 @@ def syndicate(request):
     """Renders the pubStatus page for a newly created event and attempts syndication"""
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-        form = PublicationsForm(request.POST)
+      if(request.user.has_perm('webapp.PublishPage_Action')):    
+		form = PublicationsForm(request.POST)
         if form.is_valid():
             serviceList = request.POST.copy()
             serviceList.pop("csrfmiddlewaretoken")
@@ -230,6 +245,20 @@ def syndicate(request):
             )
         else:
             messages.error(request,"Error")
+      else:
+	    return render(
+                request,
+                'webapp/publish.html',
+                {
+                    'form': publicationFormInstance,
+                    'year':datetime.now().year,
+                    'eventID':newEvent.pk,
+                    'event': request.POST.get('EventID'),
+                    'events': EventInfo.objects.all(),
+					'canAction':request.user.has_perm('webapp.PublishPage_Action')
+                }
+            )
+			
 @permission_required('webapp.StatusPage_View', login_url='/eventsyndication/')
 def pubStatus(request):
     """Renders the createEvent page."""
