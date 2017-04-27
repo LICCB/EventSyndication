@@ -35,15 +35,15 @@ from webapp.api_helpers import facebook
 
 
 #Our models and forms
-from webapp.models import LICCB_User
 from webapp.models import ApiKey
 from webapp.models import EventInfo
 from webapp.models import Publications
 from webapp.models import GlobalPermissions
-
+from webapp.models import LICCB_Role
 from webapp.forms import AddGroupForm
 from webapp.forms import AddEventForm
 from webapp.forms import PublicationsForm
+from webapp.forms import AddRoleForm
 #Needed for google auth
 from oauth2client.contrib.django_util import decorators
 #needed for user control and authentication
@@ -95,21 +95,12 @@ def mylogin(request):
         })
 
 @login_required(login_url='/eventsyndication/login')
-#@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
+@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
 def home(request):
-
-       print('hit home')
-       print(request.user)
-       print('Does user have canlogin perm?',request.user.has_perm('webapp.CanLogin'))
-
-       content_type = ContentType.objects.get_for_model(GlobalPermissions)
-       permission = Permission.objects.get(content_type=content_type, codename='CanLogin')
-
-       if(request.user.has_perm('webapp.CanLogin')):
-           print('user has perm')
-       else:
-           print('user does not have perm')
-           request.user.user_permissions.add(permission)
+       #cleanData()
+       #print('hit home')
+       #print(request.user)
+       #print('Does user have canlogin perm?',request.user.has_perm('webapp.CanLogin'))
        assert isinstance(request, HttpRequest)
        return render(
         request,
@@ -148,11 +139,11 @@ def addIfNewUser(request):
            updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
            updateNameInfo.save()         
        else:
-         newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'hashedEmail')
+         newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'tempPass')
          newUser.first_name=request.oauth.credentials.id_token['given_name']
          newUser.last_name=request.oauth.credentials.id_token['family_name']
          newUser.save()
-       user = authenticate(username=request.oauth.credentials.id_token['email'], password='hashedEmail')
+       user = authenticate(username=request.oauth.credentials.id_token['email'], password='tempPass')
        if user is not None:
            print('logging in user')
            login(request, user)
@@ -167,6 +158,7 @@ def addIfNewUser(request):
 #  storage.put(credential)
 #  return HttpResponseRedirect("/")
 
+@permission_required('webapp.CreatePage_View', login_url='/eventsyndication/')
 def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
@@ -182,6 +174,7 @@ def createEvent(request):
         'form': form
     }
 )
+@permission_required('webapp.PublishPage_View', login_url='/eventsyndication/')
 def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
@@ -205,6 +198,7 @@ def publish(request):
             )
         else:
             messages.error(request, "Error")
+
 
 def syndicate(request):
     """Renders the pubStatus page for a newly created event and attempts syndication"""
@@ -236,7 +230,7 @@ def syndicate(request):
             )
         else:
             messages.error(request,"Error")
-
+@permission_required('webapp.StatusPage_View', login_url='/eventsyndication/')
 def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
@@ -284,7 +278,7 @@ def admin(request):
             'year':datetime.now().year,
         }
     )
-
+@permission_required('webapp.CanChangeAPIKeys', login_url='/eventsyndication/')
 def apiKeys(request):
     """Renders the API keys page"""
     assert isinstance(request, HttpRequest)
@@ -321,6 +315,7 @@ def logout_view(request):
    logout(request)
    return HttpResponseRedirect('login')
 
+@permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
 def group_View(request):
     print('My groups ',request.user.groups.all())
     form = AddGroupForm()
@@ -347,7 +342,7 @@ def group_View(request):
                   request.user.groups.add(group)
                else:
                    #create a user for the future
-                  newUser=User.objects.create_user(userEmail,userEmail,'hashedEmail')
+                  newUser=User.objects.create_user(userEmail,userEmail,'tempPass')
                   newUser.save()
             return HttpResponseRedirect('groupManagement') 
         else:
@@ -362,3 +357,95 @@ def group_View(request):
         'form': form,
         'groups':Group.objects.all()
     })
+
+@permission_required('webapp.CanChangePermissions', login_url='/eventsyndication/')
+def role_View(request):
+    #print('My groups ',request.user.groups.all())
+    form = AddRoleForm()
+    print(LICCB_Role.objects.all())
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+        #print('Hit role post')
+        form = AddRoleForm(request.POST)
+        if form.is_valid():
+            #print('valid form')
+            roleInfo=form.cleaned_data
+            print(roleInfo.items())
+            userList=roleInfo.get('Users').split(",")
+            groupList=roleInfo.get('Groups').split(",")
+            for group in groupList:
+                   print(group)
+                   new_group, created = Group.objects.get_or_create(name=group)
+                   #group = Group.objects.get(name=group)
+                   setGroupPermissions(new_group,roleInfo)
+            for user in userList:
+                   print(user)
+                   new_User, created = User.objects.get_or_create(username=user)
+                   new_User.set_password('tempPass')
+                   new_User.save()
+                   nUser = User.objects.get(username=user)
+                   print(nUser)
+                   setUserPermissions(nUser,roleInfo)
+            form.save()
+
+            return HttpResponseRedirect('roleManagement') 
+        else:
+            print('error message')
+            messages.error(request, "Error")
+    return render(
+    request,
+    'webapp/roleManagement.html',
+    {
+        'title': 'Manage Roles',
+        'message':'Your Role Management page.',
+        'year':datetime.now().year,
+        'form': form,
+        'groups':Group.objects.all()
+    })
+
+def setGroupPermissions(myGroup,roleInfo):
+    myGroup.permissions.clear()
+    content_type = ContentType.objects.get_for_model(GlobalPermissions)
+    
+    for permName in ['CanLogin',  
+           'CreatePage_View', 
+            'CreatePage_Action',
+            'PublishPage_View', 
+            'PublishPage_Action', 
+            'StatusPage_View',
+            'StatusPage_Edit', 
+            'StatusPage_Delete',
+            'CanChangePermissions', 
+            'CanChangeGroups', 
+            'CanChangeAPIKeys', 
+            'CanViewLogs']:
+       if(roleInfo.get(permName)):
+         print(mygroup,' has ' ,permName) 
+         permission = Permission.objects.get(content_type=content_type, codename=permName)
+         myGroup.permissions.add(permission)
+
+def setUserPermissions(myUser,roleInfo):
+    myUser.user_permissions.clear()
+    content_type = ContentType.objects.get_for_model(GlobalPermissions)
+    
+    for permName in ['CanLogin',  
+           'CreatePage_View', 
+            'CreatePage_Action',
+            'PublishPage_View', 
+            'PublishPage_Action', 
+            'StatusPage_View',
+            'StatusPage_Edit', 
+            'StatusPage_Delete',
+            'CanChangePermissions', 
+            'CanChangeGroups', 
+            'CanChangeAPIKeys', 
+            'CanViewLogs']:
+       if(roleInfo.get(permName)):
+        print(myUser,' has ' ,permName) 
+        permission = Permission.objects.get(content_type=content_type, codename=permName)
+        myUser.user_permissions.add(permission)
+
+def cleanData():
+    User.objects.all().delete()
+    Group.objects.all().delete()
+    LICCB_Role.objects.all().delete()     

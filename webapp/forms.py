@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import ModelForm
 from webapp.models import EventInfo
 from webapp.models import Services
+from webapp.models import LICCB_Role
 
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
@@ -46,6 +47,36 @@ class AddEventForm(ModelForm):
             "EventStart" : "Start Time (MM/DD/YYYY HH:MM)",
             "EventEnd" : "End Time (MM/DD/YYYY HH:MM)"
         }
+
+class AddRoleForm(ModelForm):
+    """ModelForm for Add Event page."""
+    class Meta:
+        model = LICCB_Role
+        fields = [
+        "RoleName",
+    "Groups",
+    "Users",
+    "CanLogin",
+    "CreatePage_View",
+   "CreatePage_Action",
+    "PublishPage_View",
+    "PublishPage_Action",
+    "StatusPage_View",
+    "StatusPage_Edit",
+    "StatusPage_Delete",
+    "CanChangePermissions",
+    "CanChangeGroups",
+    "CanChangeAPIKeys",
+    "CanViewLogs"
+    ]
+        #labels = {
+        #    "RoleName":"Role Name",
+        #    "EventDescription":"Description",
+        #    "EventMeetLocation" : "Meet Location",
+        #    "EventDestination" : "Destination",
+        #    "EventStart" : "Start Time (MM/DD/YYYY HH:MM)",
+        #    "EventEnd" : "End Time (MM/DD/YYYY HH:MM)"
+        #}
 
 class PublicationsForm(forms.Form):
     def __init__(self, *args, **kwargs):

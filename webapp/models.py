@@ -16,19 +16,22 @@ from django.db import models
 #class CredentialsAdmin(admin.ModelAdmin):
 #    pass
 
-class LICCB_User(models.Model):
-    """Model for an internal user"""
-    FullName=models.CharField(max_length=256)
-    Email= models.CharField(max_length=256)
-    FirstName=models.CharField(max_length=256)
-    LastName=models.CharField(max_length=256)
-class LICCB_Group(models.Model):
-    """Model for an internal group"""
-    GroupName=models.CharField(max_length=256)
-    Email= models.CharField(max_length=256)
+#class LICCB_User(models.Model):
+#    """Model for an internal user"""
+#    FullName=models.CharField(max_length=256)
+#    Email= models.CharField(max_length=256)
+#    FirstName=models.CharField(max_length=256)
+#    LastName=models.CharField(max_length=256)
+#class LICCB_Group(models.Model):
+#    """Model for an internal group"""
+#    GroupName=models.CharField(max_length=256)
+#    Email= models.CharField(max_length=256)
+
 class LICCB_Role(models.Model):
     """Model for an internal role"""
-    RoleName=models.CharField(max_length=256)
+    RoleName=models.CharField(max_length=256,blank=False)
+    Groups=models.CharField(max_length=2048,blank=True)
+    Users=models.CharField(max_length=2048,blank=True)
     CanLogin= models.BooleanField(default=True, blank=False)
     CreatePage_View=models.BooleanField(default=False, blank=False)
     CreatePage_Action=models.BooleanField(default=False, blank=False)
@@ -39,13 +42,13 @@ class LICCB_Role(models.Model):
     StatusPage_Delete=models.BooleanField(default=False, blank=False)
     CanChangePermissions=models.BooleanField(default=False, blank=False)
     CanChangeGroups=models.BooleanField(default=False, blank=False)
-    CanAssignRoles=models.BooleanField(default=False, blank=False)
+    CanChangeAPIKeys=models.BooleanField(default=False, blank=False) 
+    CanViewLogs=models.BooleanField(default=False, blank=False)
 
-class LICCB_Relationship(models.Model):
-    parentId=models.IntegerField()
-    parentType=models.IntegerField()
-    childId=models.IntegerField()
-    childType=models.IntegerField()
+#class LICCB_Relationship(models.Model):
+#    RoleName=models.CharField(max_length=256)
+#    childName=models.CharField(max_length=256)
+#    childType=models.IntegerField()
 
 class GlobalPermissions(models.Model):
 

@@ -32,6 +32,7 @@ url(r'^$', views.home, name='home'),
    url(r'^profile_required$', views.get_profile_required),
    
     url(r'^groupManagement$',views.group_View, name='groupManagement'),
+    url(r'^roleManagement$',views.role_View, name='roleManagement'),
     url(r'^oauth2/', urls.include(django_util_site.urls))
     #,
      #url(r'^accounts/login/$', 'django.contrib.auth.views.login',
