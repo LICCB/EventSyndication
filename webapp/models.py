@@ -17,21 +17,6 @@ class EventInfo(models.Model):
         return self.EventName
 
 
-class Postings(models.Model):
-    """This table keeps track of where an event has been posted. DEPRECIATED"""
-    EventID = models.ForeignKey(EventInfo, on_delete=models.CASCADE)
-    GoogleCal = models.BooleanField(default=False)
-    Facebook = models.BooleanField(default=False)
-    MeetUp = models.BooleanField(default=False)
-    EventBrite = models.BooleanField(default=False)
-    LICCB = models.BooleanField(default=False)
-
-    @classmethod
-    def create(cls, eventID):
-        posting = cls(EventID_id=eventID)
-        return posting
-
-
 class ApiKey(models.Model):
     """Model for an API key"""
     service = models.CharField(max_length=50)

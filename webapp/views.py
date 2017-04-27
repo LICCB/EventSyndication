@@ -79,7 +79,7 @@ def syndicate(request):
             serviceList = request.POST.copy()
             serviceList.pop("csrfmiddlewaretoken")
             serviceList.pop("EventID")
-            events = EventInfo.objects.all()
+            events = EventInfo.objects.all().order_by('-EventStart')
             event = events.get(id=request.POST.get('EventID'))
             for service in serviceList:
                 publication = Publications.create(event, service)

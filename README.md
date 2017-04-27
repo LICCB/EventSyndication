@@ -16,5 +16,9 @@ Long Island City Event Syndication
         -This will install all dependencies in the folder you configured in the previous step
 
 - Run the app
-    - In the project root, run `python manage.py runserver`
-    - Navigate to http://127.0.0.1:8000/eventsyndication/ to see the homepage. This is just a starter point for now. Possibly merge some code with Stas's branch?
+    - If you are running locally, you must add loopback.pizza to your hosts file, mapped to 127.0.0.1 since Facebook requires requests to come from a domain.
+    - In the project root, run runserver.sh script. This script exports all the sensitive variables and runs the server.
+    - Navigate to http://loopback.pizza:8000/eventsyndication/ to see the homepage.
+
+- Troubleshoot
+    - Make sure you have a mysql database running.
