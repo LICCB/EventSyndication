@@ -83,9 +83,9 @@ def syndicate(request):
             event = events.get(id=request.POST.get('EventID'))
             for service in serviceList:
                 publication = Publications.create(event, service)
-                publication = publication.save()
+                publication.save()
                 publishService = services[service]
-                publishService.publish(event)
+                publishService.publish(event, publication)
             postings = Publications.objects.filter(EventID = event)
             return render(
                 request,

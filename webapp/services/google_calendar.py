@@ -1,33 +1,43 @@
 from oauth2client.service_account import ServiceAccountCredentials
 from httplib2 import Http
 from apiclient.discovery import build
+import sys
 
 class GoogleCalendar:
 
-    def publish(self, event):
+    def publish(self, event, publication):
         scopes = ['https://www.googleapis.com/auth/calendar']
-
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
-            'My Project-fe00d781d010.json', scopes=scopes)
-
+            'My Project-fe00d781d010.json', scopes=scopes
+        )
         http_auth = credentials.authorize(Http())
-
         gmt_off = '-04:00'
+        utc_format = '%Y-%m-%dT%H:%M:%S'
+        description = event.EventDescription + '\n\nDestination: ' + event.EventDestination
 
         event_to_pub = {
-            'summary': 'swagu',
-            'start': {'dateTime': '2017-04-25T17:00:00%s' % gmt_off},
-            'end': {'dateTime': '2017-04-25T18:00:00%s' % gmt_off},
-            'attendees': {'email': 'petergoggijr@gmail.com'},
+            'summary': event.EventName,
+            'start': {'dateTime': event.EventStart.strftime(utc_format) + gmt_off},
+            'end': {'dateTime': event.EventEnd.strftime(utc_format) + gmt_off},
+            'description': description,
+            'location': event.EventMeetLocation,
         }
 
         cal = build('calendar', 'v3', http = http_auth)
 
-        f = cal.events().insert(
-            calendarId='primary',
-            sendNotifications=True,
-            body=event_to_pub
-        ).execute()
+        try:
+            f = cal.events().insert(
+                calendarId='primary',
+                sendNotifications=True,
+                body=event_to_pub
+            ).execute()
 
-        print f
+            publication.Status = 'Complete'
+            publication.url = f[u'htmlLink']
+            publication.save()
+        except:
+            print "Error posting google calendar event: ", event, "error: ", sys.exc_info()[0]
+            publication.Status = 'Failed'
+            publication.save()
+
 
