@@ -13,8 +13,10 @@
             </table>
             <input type="submit" value="Syndicate">
         </form>
-        <p>The primary key of the event you just created is: {{ event.pk }}</p>
-		</div>
+        <form action="pubStatus" method="post"> {% csrf_token %}
+            <button name="EventID" type="submit" value="{{event.pk}}">Publish Later</button>
+        </form>
+        </div>
 	</div>
 	</div>
 	<script src="../../static/webapp/scripts/publishEventPage/pubEvent.js" type="text/javascript"></script>
