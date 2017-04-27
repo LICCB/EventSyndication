@@ -2,12 +2,12 @@
 
 {% block content %}
 
-<h2>{{ title }}</h2>
+<!--<h2>{{ title }}</h2>-->
 <div class="row">
     <div class="col-md-8">
         <section id="loginForm">
-            <form action="." method="post" class="form-horizontal">
-                {% csrf_token %}
+            <!--<form action="." method="post" class="form-horizontal">
+               
                 <h4>Use a local account to log in.</h4>
                 <hr />
                 <div class="form-group">
@@ -31,11 +31,18 @@
                 {% if form.errors %}
                 <p class="validation-summary-errors">Please enter a correct user name and password.</p>
                 {% endif %}
-            </form>
+            </form>-->
+
         </section>
     </div>
-    <div class="col-md-4">
-        <section id="socialLoginForm"></section>
+    <div class="col-md-12">
+        <section id="socialLoginForm">
+            <h2>Login in using Google</h2>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit">Login</button>
+            </form>
+        </section>
     </div>
 </div>
 
@@ -46,5 +53,22 @@
 
     {% load staticfiles %}
 <script src="{% static 'webapp/scripts/jquery.validate.min.js' %}"></script>
+<script>
+    $('#GoogleLogin').on('click',function(e){
+        $.ajax({
+            type: "GET",
+            url: "/get_profile_required/",
+            success: function(data){            
 
+                results = $(data).find('#results').html()               
+                $("#id_date").replaceWith("<span>" + results + "</span >");
+
+            },
+            error: function (error) {
+                console.log(error);
+                alert("Error");
+            }
+        });
+    })
+</script>
 {% endblock %}

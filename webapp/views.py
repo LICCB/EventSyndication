@@ -26,7 +26,8 @@ from datetime import datetime
 from oauth2client.contrib import xsrfutil
 from oauth2client.client import flow_from_clientsecrets
 #from oauth2client.contrib.django_orm import Storage
-from webapp.models import CredentialsModel
+#from webapp.models import CredentialsModel
+from webapp.models import LICCB_User
 from webapp.forms import AddEventForm
 from django.conf import settings
 from syndication import settings
@@ -37,7 +38,13 @@ from webapp.models import EventInfo
 from webapp.models import Publications
 from webapp.forms import PublicationsForm
 from oauth2client.contrib.django_util import decorators
+from django.contrib.auth import logout
 
+from django.contrib.auth import authenticate, login
+
+import pdb; 
+
+from django.contrib.auth.models import User
 
 SECRETS_JSON = os.path.join(os.path.dirname(__file__), 'google_secret.json')
 
@@ -46,8 +53,46 @@ FLOW = flow_from_clientsecrets(
     scope='https://www.googleapis.com/auth/plus.me',
     redirect_uri='http://localhost:8000/oauth2callback')
 
-#@login_required(login_url='/eventsyndication/login/')
+
+def mylogin(request):
+    if(isUserLoggedIn(request)):
+       addIfNewUser(request)
+       print('logged in, redirect to home')
+       url = reverse('home')
+       return HttpResponseRedirect(url)
+       #return render(
+       #  request,
+       # 'webapp/index.html',
+       # {
+       #     'title':'Syndication Tool',
+       #     'year':datetime.now().year,
+       # })
+       #home(request)
+    """Renders the login page."""
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+       #print('Entered post')
+       return get_profile_required(request)
+       return render(
+         request,
+        'webapp/index.html',
+        {
+            'title':'Syndication Tool',
+            'year':datetime.now().year,
+        })
+    return render(
+        request,
+        'webapp/login.html',
+        {
+            'title':'Login',
+            'message':'Your application description page.',
+            'year':datetime.now().year,
+        })
+
+
+@login_required(login_url='/eventsyndication/login')
 def home(request):
+
   #print >>sys.stderr, 'Goodbye, cruel world!'
   #storage = Storage(CredentialsModel, 'id', request.user, 'credential')
   #credential = storage.get()
@@ -65,9 +110,16 @@ def home(request):
   #  activitylist = activities.list(collection='public',
   #                                 userId='me').execute()
   #  logging.info(activitylist)
-    print(get_profile_optional(request))
-    if(get_profile_optional(request)):
-       print('well yay me')
+    #if User.objects.filter(username='test').exists():
+    #    print('user exists')
+    #else:
+    # x=User.objects.create_user('test')
+    # x.save()
+    #print(isUserLoggedIn(request))
+    #print(User.is_authenticated)
+
+    #if(isUserLoggedIn(request)):
+       print('hit home')
        assert isinstance(request, HttpRequest)
        return render(
         request,
@@ -77,20 +129,36 @@ def home(request):
             'year':datetime.now().year,
         }
     )
-    else:
-        print('well fuck me')
-        return get_profile_required(request)
+    #else:
+        #return get_profile_required(request)
+        #return render(
+        #request,
+        #'webapp/index.html',
+        #{
+        #    'title':'Syndication Tool',
+        #    'year':datetime.now().year,
+        #})
+        #return render(
+        #request,
+        #'webapp/index.html',
+        #{
+        #    'title':'Syndication Tool',
+        #    'year':datetime.now().year,
+        #    'user':get_profile_required(request)
+        #})
 
 @decorators.oauth_required
 def get_profile_required(request):
-    print('test')
     resp, content = request.oauth.http.request(
         'https://www.googleapis.com/plus/v1/people/me')
+    #
+    print('calling addIfNewUser')
+    #addIfNewUser(request)
+    #return content
     return http.HttpResponse(content)
 
-
 @decorators.oauth_enabled
-def get_profile_optional(request):
+def isUserLoggedIn(request):
     if request.oauth.has_credentials():
         # this could be passed into a view
         # request.oauth.http is also initialized
@@ -102,15 +170,54 @@ def get_profile_optional(request):
         #return http.HttpResponse(
         #    'Follow the link to login via google:<a href="{}">Login</a>'
         #    .format(request.oauth.get_authorize_redirect()))
-@login_required
-def auth_return(request):
-  if not xsrfutil.validate_token(settings.SECRET_KEY, request.REQUEST['state'],
-                                 request.user):
-    return  HttpResponseBadRequest()
-  credential = FLOW.step2_exchange(request.REQUEST)
-  storage = Storage(CredentialsModel, 'id', request.user, 'credential')
-  storage.put(credential)
-  return HttpResponseRedirect("/")
+
+#def doesUserHavePermission(userEmail,permission):
+#    #Get all groups and roles this user is part of(recursively
+#    #and check if the usser has specified permission
+#    return True
+
+@decorators.oauth_enabled
+def addIfNewUser(request):
+    #request.oauth.
+    if request.oauth.has_credentials():
+       print('test',request.oauth.credentials.id_token['email'])
+       if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
+        print('user exists')
+       else:
+         newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'hashedEmail')
+         newUser.first_name=request.oauth.credentials.id_token['givenName']
+         newUser.last_name=request.oauth.credentials.id_token['familyName']
+         newUser.save()
+       user = authenticate(username=request.oauth.credentials.id_token['email'], password='hashedEmail')
+       if user is not None:
+           print('logging in user')
+           login(request, user)
+         # this could be passed into a view
+        # request.oauth.http is also initialized
+        #return http.HttpResponse('User email: {}'.format(
+        #    request.oauth.credentials.id_token['email']))
+    #  print('True')
+    ##render(request,"webapp/index.html",{'email':request.oauth.credentials.id_token['email'],'name':})
+    #else: print('False')
+    #print('User email: {}'.format(
+    #        user.oauth.credentials.id_token['email']))
+    #print(user.oauth.credentials.id_token['email'])
+    #create_user(
+    #if(LICCB_User.objects.filter(Email=user.email)>0):
+    #    newUser=LICCB_User(Email=user.email,FullName=user.displayName, FirstName=user.firstname, LastName=user.surname)
+    #    newUser.Save()
+
+
+    
+#@login_required
+#def auth_return(request):
+#  if not xsrfutil.validate_token(settings.SECRET_KEY, request.REQUEST['state'],
+#                                 request.user):
+#    return  HttpResponseBadRequest()
+#  credential = FLOW.step2_exchange(request.REQUEST)
+#  storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+#  storage.put(credential)
+#  return HttpResponseRedirect("/")
 
 def createEvent(request):
     """Renders the createEvent page."""
@@ -134,7 +241,6 @@ def publish(request):
         form = AddEventForm(request.POST)
         if form.is_valid():
             #CONNECT TO EVERYTHING AND POST EVERYTHING
-            #YOLO YOLO
             #For now let's just save the postings table and call it a day.
             newEvent = form.save()
             publicationFormInstance = PublicationsForm(initial={'EventID': newEvent.pk})
@@ -263,5 +369,6 @@ def add(request):
                               'year': datetime.now().year
                           })
 
-
-
+def logout_view(request):
+   logout(request)
+   return HttpResponseRedirect('login')

@@ -19,25 +19,38 @@ url(r'^$', views.home, name='home'),
     url(r'^admin', views.admin, name='admin'),
 	url(r'^publish', views.publish, name='publish'),#/(?P<eventName>\d+)/$
 	url(r'^pubStatus', views.pubStatus, name='pubStatus'),
-    url(r'^login/$',
-        django.contrib.auth.views.login,
-        {
-            'template_name': 'webapp/login.html',
-            #'authentication_form': forms.BootstrapAuthenticationForm,
-            #'extra_context':
-            #{
-            #    'title': 'Log in',
-            #    'year': datetime.now().year,
-            #}
-        },
+    url(r'^login$',
+        views.mylogin,
+        #{
+        #    'template_name': 'webapp/login.html',
+        #    #'authentication_form': forms.BootstrapAuthenticationForm,
+        #    #'extra_context':
+        #    #{
+        #    #    'title': 'Log in',
+        #    #    'year': datetime.now().year,
+        #    #}
+        #},
         name='login'
         ),
-    url(r'^logout$',
-        django.contrib.auth.views.logout,
-        {
-            'next_page': '/',
-        },
-        name='logout'),
+      url(r'^logout$',
+        views.logout_view,
+        #{
+        #    'template_name': 'webapp/login.html',
+        #    #'authentication_form': forms.BootstrapAuthenticationForm,
+        #    #'extra_context':
+        #    #{
+        #    #    'title': 'Log in',
+        #    #    'year': datetime.now().year,
+        #    #}
+        #},
+        name='logout'
+        ),
+    #url(r'^logout$',
+    #    django.contrib.auth.views.logout,
+    #    {
+    #        'next_page': '/',
+    #    },
+    #    name='logout'),
     url(r'^apiKeys$', views.apiKeys, name='apiKeys'),
     url(r'^syndicate$', views.syndicate, name='syndicate'),
    url(r'^profile_required$', views.get_profile_required),

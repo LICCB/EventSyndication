@@ -1,6 +1,51 @@
 """Definition of models"""
-from django.db import models
+import pickle
+import base64
 
+from django.contrib import admin
+from django.contrib.auth.models import User
+from django.db import models
+#from oauth2client.contrib.django_orm import FlowField
+#from oauth2client.contrib.django_util.models import CredentialsField
+
+#class CredentialsModel(models.Model):
+#  id = models.ForeignKey(User, primary_key=True)
+#  credential = CredentialsField()
+
+
+#class CredentialsAdmin(admin.ModelAdmin):
+#    pass
+
+class LICCB_User(models.Model):
+    """Model for an internal user"""
+    FullName=models.CharField(max_length=256)
+    Email= models.CharField(max_length=256)
+    FirstName=models.CharField(max_length=256)
+    LastName=models.CharField(max_length=256)
+class LICCB_Group(models.Model):
+    """Model for an internal group"""
+    GroupName=models.CharField(max_length=256)
+    Email= models.CharField(max_length=256)
+class LICCB_Role(models.Model):
+    """Model for an internal role"""
+    RoleName=models.CharField(max_length=256)
+    CanLogin= models.BooleanField(default=True, blank=False)
+    CreatePage_View=models.BooleanField(default=False, blank=False)
+    CreatePage_Action=models.BooleanField(default=False, blank=False)
+    PublishPage_View=models.BooleanField(default=False, blank=False)
+    PublishPage_Action=models.BooleanField(default=False, blank=False)
+    StatusPage_View=models.BooleanField(default=False, blank=False)
+    StatusPage_Edit=models.BooleanField(default=False, blank=False)
+    StatusPage_Delete=models.BooleanField(default=False, blank=False)
+    CanChangePermissions=models.BooleanField(default=False, blank=False)
+    CanChangeGroups=models.BooleanField(default=False, blank=False)
+    CanAssignRoles=models.BooleanField(default=False, blank=False)
+
+class LICCB_Relationship(models.Model):
+    parentId=models.IntegerField()
+    parentType=models.IntegerField()
+    childId=models.IntegerField()
+    childType=models.IntegerField()
 
 class EventInfo(models.Model):
 
@@ -44,3 +89,7 @@ class Publications(models.Model):
     def create(cls, EventID, Service):
         publication=cls(EventID=EventID, Service=Service,Status='Pending')
         return publication
+
+    
+
+#admin.site.register(CredentialsModel, CredentialsAdmin)

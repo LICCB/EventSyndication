@@ -26,6 +26,15 @@ from envparse import env
 # FACEBOOK_CLIENT_ID - client_id for facebook application
 # FACEBOOK_CLIENT_SECRET - secret used for facebook application
 
+APPEND_SLASH = False
+#GOOGLE_OAUTH2_CLIENT_SECRETS_JSON = os.path.join(os.path.dirname(__file__), 'google_secret.json')
+
+GOOGLE_OAUTH2_CLIENT_ID = '775776867398-8c75dudorghpu6q5j0b6lt0tn7a1o0qq.apps.googleusercontent.com'
+
+GOOGLE_OAUTH2_CLIENT_SECRET = 'hzU3B-08-65Xtrlel6iqxXLK'
+
+GOOGLE_OAUTH2_SCOPES = (
+    'email', 'profile')
 #OPTIONAL ENVIRONMENT VARIABLES:
 # debug ---
 # DEBUG_ENABLED - set this environment variable to enable debug mode
@@ -40,12 +49,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = 'gagbwv&b6ycn0a^fboa08jgb@*o+xb0q-n%xj8*#sm2jx38((u'#env('DJANGO_SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG_ENABLED', cast=bool, default=False)
-
-ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS', cast=list)
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = env('DEBUG_ENABLED', cast=bool, default=False)
+DEBUG = True
+ALLOWED_HOSTS = ['127.0.0.1','localhost']#env('DJANGO_ALLOWED_HOSTS', cast=list)
 
 
 # Application definition
@@ -57,19 +66,34 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'webapp'
+    'webapp',
+    'oauth2client.contrib.django_util'
 ]
 
+#ADMINS = (
+#    ('Stanislav', 'stanislavgrozny@gmail.com'),
+#)
+
+#MANAGERS = ADMINS
+
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
 ]
-
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+)
 ROOT_URLCONF = 'syndication.urls'
 
 TEMPLATES = [
@@ -95,14 +119,19 @@ WSGI_APPLICATION = 'syndication.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': env('MYSQL_DB_NAME'),
+        # 'USER': env('MYSQL_USER'),
+        # 'PASSWORD': env('MYSQL_PASSWORD'),
+        # 'HOST': env('MYSQL_HOST'),
+        # 'PORT': env('MYSQL_PORT')
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('MYSQL_DB_NAME'),
-        'USER': env('MYSQL_USER'),
-        'PASSWORD': env('MYSQL_PASSWORD'),
-        'HOST': env('MYSQL_HOST'),
-        'PORT': env('MYSQL_PORT')
-    }
+      'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+	}
+	
 }
 
 
@@ -143,7 +172,7 @@ USE_TZ = True
 
 STATIC_URL = '/syndication_static/'
 
-FACEBOOK_SETTINGS = {
-    'client_id': env('FACEBOOK_CLIENT_ID'),
-    'client_secret': env('FACEBOOK_CLIENT_SECRET')
-}
+# FACEBOOK_SETTINGS = {
+    # 'client_id': env('FACEBOOK_CLIENT_ID'),
+    # 'client_secret': env('FACEBOOK_CLIENT_SECRET')
+# }
