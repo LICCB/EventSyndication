@@ -7,5 +7,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(["INSERT INTO webapp_services (Name, IsEnabled) VALUES ('GoogleCal', true);"])
+        migrations.RunSQL(["INSERT INTO webapp_services (Name, IsEnabled) VALUES ('Google Calendar', true);"])
     ]
