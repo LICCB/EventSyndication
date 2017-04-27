@@ -1,14 +1,41 @@
+from __future__ import print_function
+
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
+
 from django.http import HttpRequest
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
+from django.http import HttpRequest
+
 from datetime import datetime
-from webapp.forms import AddEventForm
+
 from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
+#our models
 from webapp.models import ApiKey
 from webapp.models import EventInfo
 from webapp.models import Publications
+from webapp.models import GlobalPermissions
+from webapp.models import LICCB_Role
+#our forms
+from webapp.forms import AddGroupForm
+from webapp.forms import AddEventForm
 from webapp.forms import PublicationsForm
+from webapp.forms import AddRoleForm
+
+#Needed for google auth
+from oauth2client.contrib.django_util import decorators
+#needed for user control and authentication
+from django.contrib.auth import authenticate, login, logout
+# Needed for permission control
+from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.models import Permission, Group, User
+from django.contrib.contenttypes.models import ContentType
+
+
 from webapp.services.services import services
 import logging
 
