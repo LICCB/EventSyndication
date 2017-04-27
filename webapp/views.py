@@ -52,14 +52,14 @@ def publish(request):
             event = form.save()
             publicationFormInstance = PublicationsForm(initial={'EventID': event.pk})
         else:
-            messages.error(request, "Error")
+            return messages.error(request, "Error")
     return render(
         request,
         'webapp/publish.html',
         {
             'form': publicationFormInstance,
             'year':datetime.now().year,
-            'event': event,
+            'event': event
         }
     )
 
@@ -114,7 +114,7 @@ def pubStatus(request):
                 'year':datetime.now().year,
                 'event': event,
                 'events': events,
-                'publications': postings,
+                'publications': postings
             }
         )
     else:
@@ -144,7 +144,7 @@ def admin(request):
         {
             'title':'Administration',
             'message':'Your application description page.',
-            'year':datetime.now().year,
+            'year':datetime.now().year
         }
     )
 
