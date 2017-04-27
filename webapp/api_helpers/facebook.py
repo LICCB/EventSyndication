@@ -3,6 +3,7 @@ from webapp.models import ApiKey
 import urllib2
 import json
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def get_user_access_token(code, redirect_url):
     try:
         response = urllib2.urlopen(uri)
     except:
-        logger.error("error getting facebook api key for uri: " + uri)
+        logger.error("error getting facebook api key for uri: ", uri, "error: ", sys.exc_info()[0])
     else:
         parsedResponse = json.load(response)
         newApiKey = ApiKey.create('facebook_user_access_token', parsedResponse[u'access_token'])

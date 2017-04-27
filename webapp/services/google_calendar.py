@@ -2,6 +2,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 from httplib2 import Http
 from apiclient.discovery import build
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GoogleCalendar:
 
@@ -26,17 +29,18 @@ class GoogleCalendar:
         cal = build('calendar', 'v3', http = http_auth)
 
         try:
-            f = cal.events().insert(
+            response = cal.events().insert(
                 calendarId='primary',
                 sendNotifications=True,
                 body=event_to_pub
             ).execute()
 
             publication.Status = 'Complete'
-            publication.url = f[u'htmlLink']
+            publication.url = response[u'htmlLink']
             publication.save()
+            logger.info("successfuly created calendar event: ", response)
         except:
-            print "Error posting google calendar event: ", event, "error: ", sys.exc_info()[0]
+            logger.error("Error posting google calendar event: ", event, "error: ", sys.exc_info()[0])
             publication.Status = 'Failed'
             publication.save()
 
