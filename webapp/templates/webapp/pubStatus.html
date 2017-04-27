@@ -4,6 +4,11 @@
 
 <div class="card">
 		<h1 class="pageHeaders"> Publishing Status</h1>
+        {% if notice %}
+        <div style="background-color:lightblue;">
+            <p>{{notice}}</p>
+        </div>
+        {% endif %}
 		<div class="cardBody"> 
         {% if event %}
         <h3> Event: {{event.EventName}}</h3>
@@ -25,6 +30,10 @@
         </table>
         {% else %}
         <h5>There is no publication data for this event.</h5>
+        <form action="pubStatus" method="post"> {% csrf_token %}
+            <input type="hidden" name="deleteEvent" value="true" />
+            <button name="EventID" type="submit" value="{{event.pk}}">Delete Event</button>
+        </form>
         {% endif %}
         <br>
         <form action="publish" method="post"> {% csrf_token %}

@@ -99,7 +99,10 @@ def pubStatus(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     events = EventInfo.objects.all().order_by('-EventStart')
-    if request.method == "POST":
+    if request.method == "POST" and request.POST.get('deleteEvent') == "true":
+        EventInfo.objects.filter(id=request.POST.get('EventID')).delete()
+        notice = 'Event deleted successfully.'
+    elif request.method == "POST":
         event = events.get(id=request.POST.get('EventID'))
         postings = Publications.objects.filter(EventID=event)
         return render(
@@ -111,10 +114,11 @@ def pubStatus(request):
                 'year':datetime.now().year,
                 'event': event,
                 'events': events,
-                'publications': postings
+                'publications': postings,
             }
         )
-
+    else:
+        notice = None
     event = events.first()
     postings = Publications.objects.filter(EventID=event)
     return render(
@@ -126,7 +130,8 @@ def pubStatus(request):
             'year':datetime.now().year,
             'events': events,
             'event': event,
-            'publications': postings
+            'publications': postings,
+            'notice': notice
         }
     )
 
