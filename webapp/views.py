@@ -185,8 +185,8 @@ def addIfNewUser(request):
         print('user exists')
        else:
          newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'hashedEmail')
-         newUser.first_name=request.oauth.credentials.id_token['givenName']
-         newUser.last_name=request.oauth.credentials.id_token['familyName']
+         #newUser.first_name=request.oauth.credentials.id_token['givenName']
+         #newUser.last_name=request.oauth.credentials.id_token['familyName']
          newUser.save()
        user = authenticate(username=request.oauth.credentials.id_token['email'], password='hashedEmail')
        if user is not None:
