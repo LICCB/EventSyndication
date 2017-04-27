@@ -46,12 +46,12 @@ import pdb;
 
 from django.contrib.auth.models import User
 
-SECRETS_JSON = os.path.join(os.path.dirname(__file__), 'google_secret.json')
+#SECRETS_JSON = os.path.join(os.path.dirname(__file__), 'google_secret.json')
 
-FLOW = flow_from_clientsecrets(
-    SECRETS_JSON,
-    scope='https://www.googleapis.com/auth/plus.me',
-    redirect_uri='http://localhost:8000/oauth2callback')
+#FLOW = flow_from_clientsecrets(
+#    SECRETS_JSON,
+#    scope='https://www.googleapis.com/auth/plus.me',
+#    redirect_uri='http://localhost:8000/oauth2callback')
 
 
 def mylogin(request):
@@ -171,43 +171,21 @@ def isUserLoggedIn(request):
         #    'Follow the link to login via google:<a href="{}">Login</a>'
         #    .format(request.oauth.get_authorize_redirect()))
 
-#def doesUserHavePermission(userEmail,permission):
-#    #Get all groups and roles this user is part of(recursively
-#    #and check if the usser has specified permission
-#    return True
-
 @decorators.oauth_enabled
 def addIfNewUser(request):
-    #request.oauth.
     if request.oauth.has_credentials():
-       print('test',request.oauth.credentials.id_token['email'])
+       #print(request.oauth.credentials.id_token.items())
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
-        print('user exists')
+          print('user exists')
        else:
          newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'hashedEmail')
-         #newUser.first_name=request.oauth.credentials.id_token['givenName']
-         #newUser.last_name=request.oauth.credentials.id_token['familyName']
+         newUser.first_name=request.oauth.credentials.id_token['given_name']
+         newUser.last_name=request.oauth.credentials.id_token['family_name']
          newUser.save()
        user = authenticate(username=request.oauth.credentials.id_token['email'], password='hashedEmail')
        if user is not None:
            print('logging in user')
            login(request, user)
-         # this could be passed into a view
-        # request.oauth.http is also initialized
-        #return http.HttpResponse('User email: {}'.format(
-        #    request.oauth.credentials.id_token['email']))
-    #  print('True')
-    ##render(request,"webapp/index.html",{'email':request.oauth.credentials.id_token['email'],'name':})
-    #else: print('False')
-    #print('User email: {}'.format(
-    #        user.oauth.credentials.id_token['email']))
-    #print(user.oauth.credentials.id_token['email'])
-    #create_user(
-    #if(LICCB_User.objects.filter(Email=user.email)>0):
-    #    newUser=LICCB_User(Email=user.email,FullName=user.displayName, FirstName=user.firstname, LastName=user.surname)
-    #    newUser.Save()
-
-
     
 #@login_required
 #def auth_return(request):
