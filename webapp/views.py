@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 
 from django.http import HttpRequest
 from django.http import HttpResponse
@@ -45,8 +45,15 @@ SUPERUSER="stanislavgrozny@gmail.com"
 
 def mylogin(request):
     #cleanData()
+    #createSuperUser(request)
+    print('check if signed in')
     if(isUserSignedIntoGoogle(request)):
+       #print('google is signed in')
+       #print('added user')
        addIfNewUser(request)
+       #print(request.user)
+       #user_gains_perms(request,request.user.pk)
+       #print('calling home')
        #print('logged in, redirect to home')
        url = reverse('home')
        return HttpResponseRedirect(url)
@@ -55,11 +62,11 @@ def mylogin(request):
     #if user click login button
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-       #print('Entered post')
-       createSuperUser()
+       print('Entered post')
        return get_profile_required(request)
        return HttpResponseRedirect('home')
    #load login page
+    print('not signed in')
     return render(
         request,
         'webapp/login.html',
@@ -89,7 +96,7 @@ def addIfNewUser(request):
        #print(request.oauth.credentials.id_token.items())
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
            updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
-           # print('user exists') 
+           print('user exists') 
 		   ## Update the users name ( in the case that the user was created through group/role management pages)
            updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
            updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
@@ -102,7 +109,7 @@ def addIfNewUser(request):
          newUser.save()
        user = authenticate(username=request.oauth.credentials.id_token['email'], password='tempPass')
        if user is not None:
-           #print('logging in user')
+           print('logging in user')
            login(request, user)
 
 def logout_view(request):
@@ -286,20 +293,24 @@ def add(request):
 
 @permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
 def group_View(request):
-    print('My groups ',request.user.groups.all())
+    #print('My groups ',request.user.groups.all())
     form = AddGroupForm()
     #print('hit right view')
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
         #print('Hit post')
+        print("post")
         form = AddGroupForm(request.POST)
         if form.is_valid():
+            print("validForm")
             groupInfo=form.cleaned_data
+            print(request.POST)
             if 'deleteGroup' in request.POST:
                 print('delete')
                 Group.objects.filter(name=groupInfo.get("groupName")).delete()
             else:
-            #new_group, created = Group.objects.get_or_create(name=form.groupName)
+             print('fail')
+                #new_group, created = Group.objects.get_or_create(name=form.groupName)
              userEmails=groupInfo.get('Children').split(",")
              print('About to create group')
             #Creates a group if its new
@@ -348,7 +359,7 @@ def role_View(request):
                 LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
             else:
              form.save()
-            calculatePerms()
+            calculatePerms(request)
 
             return HttpResponseRedirect('roleManagement') 
         else:
@@ -367,16 +378,19 @@ def role_View(request):
         'roles':LICCB_Role.objects.filter(~Q(RoleName="BUILTINSUPERUSER"))#returb all roles but superuser one
     })
 
-def calculatePerms():
+def calculatePerms(request):
+    currUser=request.user
+    print("CurrUser",currUser)
     groups=Group.objects.all()
     users=User.objects.all()
     for group in groups:
       group.permissions.clear()
     for user in users:
-      user.user_permissions.clear()
+        user.user_permissions.clear()
     roles=LICCB_Role.objects.all()
 
     for roleInfo in roles:
+             print(roleInfo.RoleName)
              userList=roleInfo.Users.split(",")
              groupList=roleInfo.Groups.split(",")
              if groupList:
@@ -389,14 +403,19 @@ def calculatePerms():
               for user in userList:
                  if user:
                    print(user)
-                   new_User, created = User.objects.get_or_create(username=user)
-                   new_User.set_password('tempPass')
-                   new_User.save()
+                   if not User.objects.filter(username=user).exists():
+                     new_User, created = User.objects.get_or_create(username=user)
+                     new_User.set_password('tempPass')
+                     new_User.save()
+                   
                    nUser = User.objects.get(username=user)
-                   #print(nUser)
-                   setUserPermissions(nUser,roleInfo)
-
-
+                   if nUser is not None:
+                    setUserPermissions(nUser,roleInfo,currUser)
+    #print(request.user)
+    #print("CurrUser",currUser)  
+    #logout(request) 
+    #user=User.objects    
+     
 def setGroupPermissions(myGroup,roleInfo):
     #myGroup.permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
@@ -418,7 +437,7 @@ def setGroupPermissions(myGroup,roleInfo):
          permission = Permission.objects.get(content_type=content_type, codename=permName)
          myGroup.permissions.add(permission)
 
-def setUserPermissions(myUser,roleInfo):
+def setUserPermissions(myUser,roleInfo,currUser):
     #myUser.user_permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
     
@@ -435,18 +454,22 @@ def setUserPermissions(myUser,roleInfo):
             'CanChangeAPIKeys', 
             'CanViewLogs']:
        if getattr(roleInfo,permName):
+        print('ROLE', roleInfo.RoleName,' gives user ',myUser.username,' perm ', permName)
         permission = Permission.objects.get(content_type=content_type, codename=permName)
         myUser.user_permissions.add(permission)
+    #if myUser.username==currUser:
+        myUser=get_object_or_404(User, pk=myUser.pk)
 
 #for dev to clean out temp groups and roles, as well as perms and users
 def cleanData():
+    print('Purging users, groups,, and roles')
     User.objects.all().delete()
     Group.objects.all().delete()
     LICCB_Role.objects.all().delete()  
      
 #for Dev to let your user have all perms
-def createSuperUser():
-   if not LICCB_Role.objects.filter(RoleName=SUPERUSER).exists():
+def createSuperUser(request):
+   if not LICCB_Role.objects.filter(RoleName='BUILTINSUPERUSER').exists():
       role= LICCB_Role(RoleName='BUILTINSUPERUSER',Users=SUPERUSER)
       for permName in ['CanLogin',  
            'CreatePage_View', 
@@ -461,11 +484,9 @@ def createSuperUser():
             'CanChangeAPIKeys', 
             'CanViewLogs']:
           setattr(role,permName,True)
-      new_User, created = User.objects.get_or_create(username=SUPERUSER)
-      new_User.set_password('tempPass')
-      new_User.save()
+      addIfNewUser(request)
       role.save()
-      calculatePerms()
+      calculatePerms(request)
     
       #for permName in ['CanLogin',  
       #     'CreatePage_View', 
