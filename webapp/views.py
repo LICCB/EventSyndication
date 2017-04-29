@@ -14,6 +14,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
+from django.db.models import Q
 #our models
 from webapp.models import ApiKey
 from webapp.models import EventInfo
@@ -36,12 +37,14 @@ from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
 
 
-from webapp.services.services import services
+#from webapp.services.services import services
 import logging
 
 logger = logging.getLogger(__name__)
+SUPERUSER="stanislavgrozny@gmail.com"
 
 def mylogin(request):
+    #cleanData()
     if(isUserSignedIntoGoogle(request)):
        addIfNewUser(request)
        #print('logged in, redirect to home')
@@ -53,6 +56,7 @@ def mylogin(request):
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
        #print('Entered post')
+       createSuperUser()
        return get_profile_required(request)
        return HttpResponseRedirect('home')
    #load login page
@@ -284,26 +288,28 @@ def add(request):
 def group_View(request):
     print('My groups ',request.user.groups.all())
     form = AddGroupForm()
-    print('hit right view')
+    #print('hit right view')
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-        print('Hit post')
+        #print('Hit post')
         form = AddGroupForm(request.POST)
         if form.is_valid():
+            groupInfo=form.cleaned_data
+            if 'deleteGroup' in request.POST:
+                print('delete')
+                Group.objects.filter(name=groupInfo.get("groupName")).delete()
+            else:
             #new_group, created = Group.objects.get_or_create(name=form.groupName)
-            print(form.cleaned_data.get('groupName'))
-            print(form.cleaned_data.get('Children'))
-            userEmails=form.cleaned_data.get('Children').split(",")
-            print('About to create group')
+             userEmails=groupInfo.get('Children').split(",")
+             print('About to create group')
             #Creates a group if its new
-            #stanislavgrozny@gmail.com
-            new_group, created = Group.objects.get_or_create(name=form.cleaned_data.get('groupName'))
-            new_group.save()
-            for userEmail in userEmails:
+             new_group, created = Group.objects.get_or_create(name=groupInfo.get('groupName'))
+             new_group.save()
+             for userEmail in userEmails:
                if User.objects.filter(username=userEmail).exists():
                   user =User.objects.filter(username=userEmail)
                   print('about to add group')
-                  group = Group.objects.get(name=form.cleaned_data.get('groupName'))
+                  group = Group.objects.get(name=groupInfo.get('groupName'))
                   request.user.groups.add(group)
                else:
                    #create a user for the future
@@ -335,28 +341,20 @@ def role_View(request):
         if form.is_valid():
             #print('valid form')
             roleInfo=form.cleaned_data
-            print(roleInfo.items())
-            userList=roleInfo.get('Users').split(",")
-            groupList=roleInfo.get('Groups').split(",")
-            for group in groupList:
-                   print(group)
-                   new_group, created = Group.objects.get_or_create(name=group)
-                   #group = Group.objects.get(name=group)
-                   setGroupPermissions(new_group,roleInfo)
-            for user in userList:
-                   print(user)
-                   new_User, created = User.objects.get_or_create(username=user)
-                   new_User.set_password('tempPass')
-                   new_User.save()
-                   nUser = User.objects.get(username=user)
-                   print(nUser)
-                   setUserPermissions(nUser,roleInfo)
-            form.save()
+            #print("post: ",request.POST)
+            #print("cleanInfo: ",roleInfo)
+            if 'deleteRole' in request.POST:
+                print('delete')
+                LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
+            else:
+             form.save()
+            calculatePerms()
 
             return HttpResponseRedirect('roleManagement') 
         else:
             print('error message')
             messages.error(request, "Error")
+   
     return render(
     request,
     'webapp/roleManagement.html',
@@ -365,8 +363,39 @@ def role_View(request):
         'message':'Your Role Management page.',
         'year':datetime.now().year,
         'form': form,
-        'groups':Group.objects.all()
+        'groups':Group.objects.all(),
+        'roles':LICCB_Role.objects.filter(~Q(RoleName="BUILTINSUPERUSER"))#returb all roles but superuser one
     })
+
+def calculatePerms():
+    groups=Group.objects.all()
+    users=User.objects.all()
+    for group in groups:
+      group.permissions.clear()
+    for user in users:
+      user.user_permissions.clear()
+    roles=LICCB_Role.objects.all()
+
+    for roleInfo in roles:
+             userList=roleInfo.Users.split(",")
+             groupList=roleInfo.Groups.split(",")
+             if groupList:
+              for group in groupList:
+                  if group: 
+                    #new_group, created = Group.objects.get_or_create(name=group)
+                    group = Group.objects.get(name=group)
+                    setGroupPermissions(group,roleInfo)
+             if userList:
+              for user in userList:
+                 if user:
+                   print(user)
+                   new_User, created = User.objects.get_or_create(username=user)
+                   new_User.set_password('tempPass')
+                   new_User.save()
+                   nUser = User.objects.get(username=user)
+                   #print(nUser)
+                   setUserPermissions(nUser,roleInfo)
+
 
 def setGroupPermissions(myGroup,roleInfo):
     #myGroup.permissions.clear()
@@ -384,8 +413,8 @@ def setGroupPermissions(myGroup,roleInfo):
             'CanChangeGroups', 
             'CanChangeAPIKeys', 
             'CanViewLogs']:
-       if(roleInfo.get(permName)):
-         print(mygroup,' has ' ,permName) 
+       if getattr(roleInfo,permName):
+         print(myGroup,' has ' ,permName) 
          permission = Permission.objects.get(content_type=content_type, codename=permName)
          myGroup.permissions.add(permission)
 
@@ -405,7 +434,7 @@ def setUserPermissions(myUser,roleInfo):
             'CanChangeGroups', 
             'CanChangeAPIKeys', 
             'CanViewLogs']:
-       if(roleInfo.get(permName)):
+       if getattr(roleInfo,permName):
         permission = Permission.objects.get(content_type=content_type, codename=permName)
         myUser.user_permissions.add(permission)
 
@@ -416,11 +445,9 @@ def cleanData():
     LICCB_Role.objects.all().delete()  
      
 #for Dev to let your user have all perms
-def giveAllPerms(username):
-      myUser = User.objects.get(username=username)
-      myUser.user_permissions.clear()
-      content_type = ContentType.objects.get_for_model(GlobalPermissions)
-    
+def createSuperUser():
+   if not LICCB_Role.objects.filter(RoleName=SUPERUSER).exists():
+      role= LICCB_Role(RoleName='BUILTINSUPERUSER',Users=SUPERUSER)
       for permName in ['CanLogin',  
            'CreatePage_View', 
             'CreatePage_Action',
@@ -433,5 +460,24 @@ def giveAllPerms(username):
             'CanChangeGroups', 
             'CanChangeAPIKeys', 
             'CanViewLogs']:
-        permission = Permission.objects.get(content_type=content_type, codename=permName)
-        myUser.user_permissions.add(permission)
+          setattr(role,permName,True)
+      new_User, created = User.objects.get_or_create(username=SUPERUSER)
+      new_User.set_password('tempPass')
+      new_User.save()
+      role.save()
+      calculatePerms()
+    
+      #for permName in ['CanLogin',  
+      #     'CreatePage_View', 
+      #      'CreatePage_Action',
+      #      'PublishPage_View', 
+      #      'PublishPage_Action', 
+      #      'StatusPage_View',
+      #      'StatusPage_Edit', 
+      #      'StatusPage_Delete',
+      #      'CanChangePermissions', 
+      #      'CanChangeGroups', 
+      #      'CanChangeAPIKeys', 
+      #      'CanViewLogs']:
+      #  permission = Permission.objects.get(content_type=content_type, codename=permName)
+      #  myUser.user_permissions.add(permission)
