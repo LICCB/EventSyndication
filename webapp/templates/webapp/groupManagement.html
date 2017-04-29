@@ -31,6 +31,11 @@
         <br />
         <form method="post" action="groupManagement">
             {% csrf_token %}
+            {% if not groups %}
+            <div class="col-md-12">
+                <h4 sstyle="text-align:center">No groups exist yet</h4>
+            </div>
+            {% else %}
             <select name="groupName">
                 {% for group in groups %}
 
@@ -49,6 +54,7 @@
             <input type="submit" value="Edit Group">
 			<input type="submit" value="Delete Group" name="deleteGroup">
             <!--<button id="deleteGroup">Delete Group</button>-->
+            {% endif %}
         </form>
     </div>
 </div>
