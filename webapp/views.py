@@ -368,7 +368,7 @@ def add(request):
 #@permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
 def group_View(request):
 
-    if request/user.has_perm('webapp.CanChangeGroups'):    
+    if request.user.has_perm('webapp.CanChangeGroups'):    
     #print('My groups ',request.user.groups.all())
         form = AddGroupForm()
         #print('hit right view')
