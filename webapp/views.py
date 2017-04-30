@@ -452,11 +452,11 @@ def role_View(request):
                 roleInfo=form.cleaned_data
                 if 'deleteRole' in request.POST:
                     print('delete')
-                    LICCB_Role.objects.filter(id=roleInfo.get("RoleName")).delete()
+                    LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
                     lastAction=3
                 elif 'editRole' in request.POST:
                     #delete old one and save the update
-                    LICCB_Role.objects.filter(id=roleInfo.get("RoleName")).delete()
+                    LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
                     form.save()
                     lastAction=2
                 else:
