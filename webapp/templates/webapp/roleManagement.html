@@ -8,11 +8,19 @@
         padding-right: 5px;
     }
 </style>
+{% if lastAction == 1 %}
+<b>Role Successfully Added</b>
+        {% elif lastAction == 2 %}
+<b>Role Successfully Edited</b>
+        {% elif lastAction == 3 %}
+<b>Role Successfully Deleted</b>
+        {% endif %}
 <div class="card">
     <h1 class="pageHeaders"> Add A Role </h1>
     <div class="cardBody">
         <br>
         <br>
+        
         <form method="post" action="roleManagement">
             {% csrf_token %}
 
@@ -113,7 +121,7 @@
             <select name="RoleName">
                 {% for role in roles %}
 
-                <option value="{{role}}">{{role}}</option>
+                <option value="{{role.RoleName}}">{{role.RoleName}}</option>
 
                 {% endfor %}
             </select>

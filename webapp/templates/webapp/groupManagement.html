@@ -45,14 +45,14 @@
             </select>
             <div id="test">
                 <!--{{ form.as_p }}-->
-                <input id="id_groupName" maxlength="256" name="groupName" type="hidden" />
+                <!--<input id="id_groupName" maxlength="256" name="groupName" type="hidden" />-->
                 <br />
                 <label for="Children">Comma delimited list of users: </label>
-                <textarea style="width:50%" id="Children" name="Children" maxlength="1024" required></textarea>
+                <textarea style="width:50%" id="Children" name="Children" maxlength="1024"></textarea>
             </div>
             <br />
             <input type="submit" value="Edit Group">
-			<input type="submit" value="Delete Group" name="deleteGroup">
+			<input type="submit" value="Delete Group">
             <!--<button id="deleteGroup">Delete Group</button>-->
             {% endif %}
         </form>
