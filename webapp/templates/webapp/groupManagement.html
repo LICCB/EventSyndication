@@ -1,7 +1,17 @@
 ﻿{% extends "webapp/layout.html" %}
 
 {% block content %}
-
+{% if lastAction > 0 %}
+<div class="alert alert-info" role="alert">
+    {% if lastAction == 1 %}
+    <b>Group Successfully Added</b>
+    {% elif lastAction == 2 %}
+    <b>Group Successfully Edited</b>
+    {% elif lastAction == 3 %}
+    <b>Group Successfully Deleted</b>
+    {% endif %}
+</div>
+{% endif %}
 <div class="card">
     <h1 class="pageHeaders"> Add A Group </h1>
     <div class="cardBody">
@@ -51,8 +61,8 @@
                 <textarea style="width:50%" id="Children" name="Children" maxlength="1024"></textarea>
             </div>
             <br />
-            <input type="submit" value="Edit Group">
-			<input type="submit" value="Delete Group">
+            <input type="submit" value="Edit Group" name="editGroup">
+			<input type="submit" value="Delete Group" name="deleteGroup">
             <!--<button id="deleteGroup">Delete Group</button>-->
             {% endif %}
         </form>

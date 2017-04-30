@@ -25,7 +25,7 @@ class BootstrapAuthenticationForm(AuthenticationForm):
 class AddGroupForm(forms.Form):
     """ModelForm for Add group page."""
     groupName=forms.CharField(label='Group Name', max_length=50)
-    Children=forms.CharField(label='Comma delimited users',max_length=256)   
+    Children=forms.CharField(label='Comma delimited users',max_length=256,required = False)   
 
 class AddRoleForm(ModelForm):
     """ModelForm for Add Event page."""

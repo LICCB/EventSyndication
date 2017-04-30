@@ -371,55 +371,70 @@ def add(request):
 def group_View(request):
 
     if request.user.has_perm('webapp.CanChangeGroups'):    
-    #print('My groups ',request.user.groups.all())
         form = AddGroupForm()
-        #print('hit right view')
+        lastAction=0
         assert isinstance(request, HttpRequest)
         if request.method == "POST":
-            #print('Hit post')
-            print("post")
             form = AddGroupForm(request.POST)
             if form.is_valid():
-                print("validForm")
-                groupInfo=form.cleaned_data
-                print(request.POST)
-                if 'deleteGroup' in request.POST:
-                    print('delete')
-                    Group.objects.filter(name=groupInfo.get("groupName")).delete()
-                else:
-                 print('fail')
-                    #new_group, created = Group.objects.get_or_create(name=form.groupName)
-                 userEmails=groupInfo.get('Children').split(",")
-                 print('About to create group')
-                #Creates a group if its new
-                 new_group, created = Group.objects.get_or_create(name=groupInfo.get('groupName'))
-                 new_group.save()
-                 for userEmail in userEmails:
-                   if User.objects.filter(username=userEmail).exists():
-                      user =User.objects.filter(username=userEmail)
-                      print('about to add group')
-                      group = Group.objects.get(name=groupInfo.get('groupName'))
-                      request.user.groups.add(group)
-                   else:
-                       #create a user for the future
-                      newUser=User.objects.create_user(userEmail,userEmail,'tempPass')
-                      newUser.save()
-                return HttpResponseRedirect('groupManagement') 
+                    print("validForm")
+                    groupInfo=form.cleaned_data
+                    print(request.POST)
+                    if 'deleteGroup' in request.POST:
+                        print('delete')
+                        Group.objects.filter(name=groupInfo.get("groupName")).delete()
+                        lastAction=3
+                    elif 'editGroup' in request.POST:
+                        #delete old one and save the update
+                        print('edit')
+                        Group.objects.filter(name=groupInfo.get("groupName")).delete()
+                        createGroup(groupInfo)
+                        lastAction=2
+
+                    else:
+                         print('add')
+                         createGroup(groupInfo) #recalculate permissions 
+                         lastAction=1
+
+                    calculatePerms(request)
+                    return loadGroupM(request,lastAction)
             else:
                 messages.error(request, "Error")
-        return render(
-        request,
-        'webapp/groupManagement.html',
+        return loadGroupM(request,lastAction)
+
+    else:
+        return loadHomeWithPermError(request,"You do not have access to change groups")
+
+def createGroup(groupInfo):
+    userEmails=groupInfo.get('Children').split(",")
+    #Creates a group
+    new_group, created = Group.objects.get_or_create(name=groupInfo.get('groupName'))
+    new_group.save()
+    g = Group.objects.get(name=groupInfo.get('groupName')) 
+    for userEmail in userEmails:
+        user =User.objects.filter(username=userEmail)
+        if not user:
+            #create a user for the future
+            newUser=User.objects.create_user(userEmail,userEmail,'tempPass')
+            newUser.save()
+        user =User.objects.filter(username=userEmail)
+        user.first().groups.add(g)
+           
+
+
+def loadGroupM(request,lastAction):
+    return render(
+    request,
+    'webapp/groupManagement.html',
         {
             'title': 'Manage Groups',
             'message':'Your Group Management page.',
             'year':datetime.now().year,
-            'form': form,
-            'groups':Group.objects.all()
+            'form': AddGroupForm(),
+            'groups':Group.objects.all(),
+            'lastAction':lastAction
         })
 
-    else:
-        return loadHomeWithPermError(request,"You do not have access to change groups")
 #@permission_required('webapp.CanChangePermissions', login_url='/eventsyndication/')
 def role_View(request):
    if request.user.has_perm('webapp.CanChangePermissions'):
@@ -439,21 +454,16 @@ def role_View(request):
                     print('delete')
                     LICCB_Role.objects.filter(id=roleInfo.get("RoleName")).delete()
                     lastAction=3
-                
-                    print(lastAction)
                 elif 'editRole' in request.POST:
                     #delete old one and save the update
                     LICCB_Role.objects.filter(id=roleInfo.get("RoleName")).delete()
                     form.save()
                     lastAction=2
-                    print(lastAction)
                 else:
                  form.save()
                  lastAction=1
-                 print(lastAction)
                 calculatePerms(request)
                 loadRoleM(request,lastAction)
-                #return HttpResponseRedirect('roleManagement') 
             else:
                 print('error message')
                 messages.error(request, "Error")
