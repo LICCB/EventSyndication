@@ -38,8 +38,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from django import template
 
-#from webapp.services.services import services
+from webapp.services.services import services
 import logging
+
 register = template.Library()
 logger = logging.getLogger(__name__)
 SUPERUSER="stanislavgrozny@gmail.com"
