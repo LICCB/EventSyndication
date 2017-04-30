@@ -36,10 +36,11 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
 
+from django import template
 
 #from webapp.services.services import services
 import logging
-
+register = template.Library()
 logger = logging.getLogger(__name__)
 SUPERUSER="stanislavgrozny@gmail.com"
 
@@ -435,13 +436,13 @@ def role_View(request):
                 roleInfo=form.cleaned_data
                 if 'deleteRole' in request.POST:
                     print('delete')
-                    LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
+                    LICCB_Role.objects.filter(id=roleInfo.get("RoleName")).delete()
                     lastAction=3
                 
                     print(lastAction)
                 elif 'editRole' in request.POST:
                     #delete old one and save the update
-                    LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
+                    LICCB_Role.objects.filter(id=roleInfo.get("RoleName")).delete()
                     form.save()
                     lastAction=2
                     print(lastAction)
@@ -458,6 +459,8 @@ def role_View(request):
         return loadRoleM(request,lastAction)
    else:
         return loadHomeWithPermError(request,"You do not have access to change roles or permissions")
+
+
 def loadRoleM(request,lastAction):
     return render(
     request,
