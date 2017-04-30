@@ -48,13 +48,7 @@ def mylogin(request):
     #createSuperUser(request)
     print('check if signed in')
     if(isUserSignedIntoGoogle(request)):
-       #print('google is signed in')
-       #print('added user')
        addIfNewUser(request)
-       #print(request.user)
-       #user_gains_perms(request,request.user.pk)
-       #print('calling home')
-       #print('logged in, redirect to home')
        url = reverse('home')
        return HttpResponseRedirect(url)
 
@@ -131,11 +125,13 @@ def home(request):
     )
 
 
-@permission_required('webapp.CreatePage_View', login_url='/eventsyndication/')
+#@permission_required('webapp.CreatePage_View', login_url='/eventsyndication/')
 def createEvent(request):
+  if request.user.has_perm('webapp.CreatePage_View'):  
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     form = AddEventForm()
+    print (request.user.has_perm('webapp.CreatePage_Action'))
     return render(
     request,
     'webapp/createEvent.html',
@@ -143,11 +139,14 @@ def createEvent(request):
         'title': 'Syndicate New Event',
         'message':'Your Event Creation page.',
         'year':datetime.now().year,
-        'form': form
+        'form': form,
+        'canAction':request.user.has_perm('webapp.CreatePage_Action')
     }
 )
+  else:
+      return loadHomeWithPermError(request,"You don't have permissions to create events")
 
-@permission_required('webapp.PublishPage_View', login_url='/eventsyndication/')
+#@permission_required('webapp.PublishPage_View', login_url='/eventsyndication/')
 def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
@@ -155,95 +154,166 @@ def publish(request):
         publicationFormInstance = PublicationsForm(initial={'EventID': request.POST.get('EventID')})
         event = EventInfo.objects.get(id=request.POST.get('EventID'))
     elif request.method == "POST":
-        form = AddEventForm(request.POST)
-        if form.is_valid():
-            event = form.save()
-            publicationFormInstance = PublicationsForm(initial={'EventID': event.pk})
+        if request.user.has_perm('webapp.CreatePage_Action'):
+          print('user has permission to action on createEvent')
+          form = AddEventForm(request.POST)
+          if form.is_valid():
+              event = form.save()
+              publicationFormInstance = PublicationsForm(initial={'EventID': event.pk})
+          else:
+              return messages.error(request, "Error")
         else:
-            return messages.error(request, "Error")
-    return render(
+            print('user doesnt have permission to action on createEvent')
+            return render(
+            request,
+            'webapp/createEvent.html',
+            {
+                'title': 'Syndicate New Event',
+                'message':'Your Event Creation page.',
+                'year':datetime.now().year,
+                'form': AddEventForm(),
+                'canAction':request.user.has_perm('webapp.CreatePage_Action')
+            })
+    if request.user.has_perm('webapp.PublishPage_View'):
+        return render(
+            request,
+            'webapp/publish.html',
+            {
+                'form': publicationFormInstance,
+                'year':datetime.now().year,
+                'event': event,
+                'canAction':request.user.has_perm('webapp.PublishPage_Action')
+            }
+        )
+    else:
+       return render(
         request,
-        'webapp/publish.html',
+        'webapp/createEvent.html',
         {
-            'form': publicationFormInstance,
+            'title': 'Syndicate New Event',
+            'message':'Your Event Creation page.',
             'year':datetime.now().year,
-            'event': event
-        }
-    )
+            'form': AddEventForm(),
+            'errorMessage':event.EventName+" was saved successfully, but you don't have access to the publish page",
+            'canAction':request.user.has_perm('webapp.CreatePage_Action')
+        })
 
 def syndicate(request):
     """Renders the pubStatus page for a newly created event and attempts syndication"""
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-        form = PublicationsForm(request.POST)
-        if form.is_valid():
-            serviceList = request.POST.copy()
-            serviceList.pop("csrfmiddlewaretoken")
-            serviceList.pop("EventID")
-            events = EventInfo.objects.all().order_by('-EventStart')
+        
+            form = PublicationsForm(request.POST)
+            if form.is_valid():
+                serviceList = request.POST.copy()
+                serviceList.pop("csrfmiddlewaretoken")
+                serviceList.pop("EventID")
+                events = EventInfo.objects.all().order_by('-EventStart')
+                event = events.get(id=request.POST.get('EventID'))
+                for service in serviceList:
+                    publication = Publications.create(event, service)
+                    publication.save()
+                    publishService = services[service]
+                    publishService.publish(event, publication)
+                postings = Publications.objects.filter(EventID = event)
+                if request.user.has_perm('webapp.StatusPage_View'):
+                    return render(
+                        request,
+                        'webapp/pubStatus.html',
+                        {
+                            'title': 'Publication Status',
+                            'message': 'Event Syndication Status',
+                            'year': datetime.now().year,
+                            'events': events,
+                            'event': event,
+                            'publications': postings,
+                        }
+                    )
+                else:   
+                    return loadHomeWithPermError(request,"Your event has been syndicated, but you don't have access to view the progress of the syndication")
+            else:
+                messages.error(request,"Error")
+        
+            #StatusPage_View',
+#            'StatusPage_Edit', 
+#            'StatusPage_Delete',
+#@permission_required('webapp.StatusPage_View', login_url='/eventsyndication/')
+def pubStatus(request):
+    """Renders the createEvent page."""
+    if request.user.has_perm('webapp.StatusPage_View'):
+        assert isinstance(request, HttpRequest)
+        events = EventInfo.objects.all().order_by('-EventStart')
+        if request.method == "POST" and request.POST.get('deleteEvent') == "true":
+          if request.user.has_perm('webapp.StatusPage_Delete'):  
+            EventInfo.objects.filter(id=request.POST.get('EventID')).delete()
+            notice = 'Event deleted successfully.'
+          else:
+            notice = None
+            event = events.first()
+            postings = Publications.objects.filter(EventID=event)
+            return render(
+            request,
+            'webapp/pubStatus.html',
+            {
+                'title':'Publication Status',
+                'message':'Your Event Creation page.',
+                'year':datetime.now().year,
+                'events': events,
+                'event': event,
+                'publications': postings,
+                'notice': notice,
+                'canEdit':request.user.has_perm('webapp.StatusPage_Edit'),
+                'canDelete':request.user.has_perm('webapp.StatusPage_Delete')
+            })
+
+        elif request.method == "POST":
             event = events.get(id=request.POST.get('EventID'))
-            for service in serviceList:
-                publication = Publications.create(event, service)
-                publication.save()
-                publishService = services[service]
-                publishService.publish(event, publication)
-            postings = Publications.objects.filter(EventID = event)
+            postings = Publications.objects.filter(EventID=event)
             return render(
                 request,
                 'webapp/pubStatus.html',
                 {
-                    'title': 'Publication Status',
-                    'message': 'Event Syndication Status',
-                    'year': datetime.now().year,
-                    'events': events,
+                    'title':'Publication Status',
+                    'message':'Your status',
+                    'year':datetime.now().year,
                     'event': event,
-                    'publications': postings
+                    'events': events,
+                    'publications': postings,
+                    'canEdit':request.user.has_perm('webapp.StatusPage_Edit'),
+                    'canDelete':request.user.has_perm('webapp.StatusPage_Delete')
                 }
             )
         else:
-            messages.error(request,"Error")
-
-            
-@permission_required('webapp.StatusPage_View', login_url='/eventsyndication/')
-def pubStatus(request):
-    """Renders the createEvent page."""
-    assert isinstance(request, HttpRequest)
-    events = EventInfo.objects.all().order_by('-EventStart')
-    if request.method == "POST" and request.POST.get('deleteEvent') == "true":
-        EventInfo.objects.filter(id=request.POST.get('EventID')).delete()
-        notice = 'Event deleted successfully.'
-    elif request.method == "POST":
-        event = events.get(id=request.POST.get('EventID'))
+            notice = None
+        event = events.first()
         postings = Publications.objects.filter(EventID=event)
         return render(
             request,
             'webapp/pubStatus.html',
             {
                 'title':'Publication Status',
-                'message':'Your status',
+                'message':'Your Event Creation page.',
                 'year':datetime.now().year,
-                'event': event,
                 'events': events,
-                'publications': postings
+                'event': event,
+                'publications': postings,
+                'notice': notice,
+                'canEdit':request.user.has_perm('webapp.StatusPage_Edit'),
+                'canDelete':request.user.has_perm('webapp.StatusPage_Delete')
             }
         )
     else:
-        notice = None
-    event = events.first()
-    postings = Publications.objects.filter(EventID=event)
+        return loadHomeWithPermError(request,"You do not habe access to view the publish status page" )
+     
+def loadHomeWithPermError(request,error):
     return render(
-        request,
-        'webapp/pubStatus.html',
-        {
-            'title':'Publication Status',
-            'message':'Your Event Creation page.',
-            'year':datetime.now().year,
-            'events': events,
-            'event': event,
-            'publications': postings,
-            'notice': notice
-        }
-    )
+            request,
+            'webapp/index.html',
+            {
+                'title':'Syndication Tool',
+                'year':datetime.now().year,
+                'errorMessage':error
+            })
 
 def admin(request):
     """Renders the about page."""
@@ -257,8 +327,10 @@ def admin(request):
             'year':datetime.now().year
         }
     )
-@permission_required('webapp.CanChangeAPIKeys', login_url='/eventsyndication/')
+
+#@permission_required('webapp.CanChangeAPIKeys', login_url='/eventsyndication/')
 def apiKeys(request):
+  if request.user.has_perm('webapp.CanChangeAPIKeys'):
     """Renders the API keys page"""
     assert isinstance(request, HttpRequest)
     facebook_code = request.GET.get('code')
@@ -277,6 +349,8 @@ def apiKeys(request):
             'name': facebook.get_user_info()
             }
             )
+  else:
+      return loadHomeWithPermError(request,"You don't have acces to change the API keys")
 
 def add(request):
     """Saves form to db"""
@@ -291,81 +365,100 @@ def add(request):
                               'year': datetime.now().year
                           })
 
-@permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
+#@permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
 def group_View(request):
-    #print('My groups ',request.user.groups.all())
-    form = AddGroupForm()
-    #print('hit right view')
-    assert isinstance(request, HttpRequest)
-    if request.method == "POST":
-        #print('Hit post')
-        print("post")
-        form = AddGroupForm(request.POST)
-        if form.is_valid():
-            print("validForm")
-            groupInfo=form.cleaned_data
-            print(request.POST)
-            if 'deleteGroup' in request.POST:
-                print('delete')
-                Group.objects.filter(name=groupInfo.get("groupName")).delete()
-            else:
-             print('fail')
-                #new_group, created = Group.objects.get_or_create(name=form.groupName)
-             userEmails=groupInfo.get('Children').split(",")
-             print('About to create group')
-            #Creates a group if its new
-             new_group, created = Group.objects.get_or_create(name=groupInfo.get('groupName'))
-             new_group.save()
-             for userEmail in userEmails:
-               if User.objects.filter(username=userEmail).exists():
-                  user =User.objects.filter(username=userEmail)
-                  print('about to add group')
-                  group = Group.objects.get(name=groupInfo.get('groupName'))
-                  request.user.groups.add(group)
-               else:
-                   #create a user for the future
-                  newUser=User.objects.create_user(userEmail,userEmail,'tempPass')
-                  newUser.save()
-            return HttpResponseRedirect('groupManagement') 
-        else:
-            messages.error(request, "Error")
-    return render(
-    request,
-    'webapp/groupManagement.html',
-    {
-        'title': 'Manage Groups',
-        'message':'Your Group Management page.',
-        'year':datetime.now().year,
-        'form': form,
-        'groups':Group.objects.all()
-    })
 
-@permission_required('webapp.CanChangePermissions', login_url='/eventsyndication/')
+    if request/user.has_perm('webapp.CanChangeGroups'):    
+    #print('My groups ',request.user.groups.all())
+        form = AddGroupForm()
+        #print('hit right view')
+        assert isinstance(request, HttpRequest)
+        if request.method == "POST":
+            #print('Hit post')
+            print("post")
+            form = AddGroupForm(request.POST)
+            if form.is_valid():
+                print("validForm")
+                groupInfo=form.cleaned_data
+                print(request.POST)
+                if 'deleteGroup' in request.POST:
+                    print('delete')
+                    Group.objects.filter(name=groupInfo.get("groupName")).delete()
+                else:
+                 print('fail')
+                    #new_group, created = Group.objects.get_or_create(name=form.groupName)
+                 userEmails=groupInfo.get('Children').split(",")
+                 print('About to create group')
+                #Creates a group if its new
+                 new_group, created = Group.objects.get_or_create(name=groupInfo.get('groupName'))
+                 new_group.save()
+                 for userEmail in userEmails:
+                   if User.objects.filter(username=userEmail).exists():
+                      user =User.objects.filter(username=userEmail)
+                      print('about to add group')
+                      group = Group.objects.get(name=groupInfo.get('groupName'))
+                      request.user.groups.add(group)
+                   else:
+                       #create a user for the future
+                      newUser=User.objects.create_user(userEmail,userEmail,'tempPass')
+                      newUser.save()
+                return HttpResponseRedirect('groupManagement') 
+            else:
+                messages.error(request, "Error")
+        return render(
+        request,
+        'webapp/groupManagement.html',
+        {
+            'title': 'Manage Groups',
+            'message':'Your Group Management page.',
+            'year':datetime.now().year,
+            'form': form,
+            'groups':Group.objects.all()
+        })
+
+    else:
+        return loadHomeWithPermError(request,"You do not have access to change groups")
+#@permission_required('webapp.CanChangePermissions', login_url='/eventsyndication/')
 def role_View(request):
-    #print('My groups ',request.user.groups.all())
-    form = AddRoleForm()
-    print(LICCB_Role.objects.all())
-    assert isinstance(request, HttpRequest)
-    if request.method == "POST":
-        #print('Hit role post')
-        form = AddRoleForm(request.POST)
-        if form.is_valid():
-            #print('valid form')
-            roleInfo=form.cleaned_data
-            #print("post: ",request.POST)
-            #print("cleanInfo: ",roleInfo)
-            if 'deleteRole' in request.POST:
-                print('delete')
-                LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
-            else:
-             form.save()
-            calculatePerms(request)
+   if request.user.has_perm('webapp.CanChangePermissions'):
+        #print('My groups ',request.user.groups.all())
+        form = AddRoleForm()
+        #print(LICCB_Role.objects.all())
+        lastAction=0
+        assert isinstance(request, HttpRequest)
+        if request.method == "POST":
+            #print('Hit role post')
+            form = AddRoleForm(request.POST)
+            if form.is_valid():
 
-            return HttpResponseRedirect('roleManagement') 
-        else:
-            print('error message')
-            messages.error(request, "Error")
-   
+                #print('valid form')
+                roleInfo=form.cleaned_data
+                if 'deleteRole' in request.POST:
+                    print('delete')
+                    LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
+                    lastAction=3
+                
+                    print(lastAction)
+                elif 'editRole' in request.POST:
+                    #delete old one and save the update
+                    LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
+                    form.save()
+                    lastAction=2
+                    print(lastAction)
+                else:
+                 form.save()
+                 lastAction=1
+                 print(lastAction)
+                calculatePerms(request)
+                loadRoleM(request,lastAction)
+                #return HttpResponseRedirect('roleManagement') 
+            else:
+                print('error message')
+                messages.error(request, "Error")
+        return loadRoleM(request,lastAction)
+   else:
+        return loadHomeWithPermError(request,"You do not have access to change roles or permissions")
+def loadRoleM(request,lastAction):
     return render(
     request,
     'webapp/roleManagement.html',
@@ -373,9 +466,10 @@ def role_View(request):
         'title': 'Manage Roles',
         'message':'Your Role Management page.',
         'year':datetime.now().year,
-        'form': form,
+        'form': AddRoleForm(),
         'groups':Group.objects.all(),
-        'roles':LICCB_Role.objects.filter(~Q(RoleName="BUILTINSUPERUSER"))#returb all roles but superuser one
+        'roles':LICCB_Role.objects.filter(~Q(RoleName="BUILTINSUPERUSER")),#returb all roles but superuser one
+        'lastAction':lastAction
     })
 
 def calculatePerms(request):
@@ -411,10 +505,6 @@ def calculatePerms(request):
                    nUser = User.objects.get(username=user)
                    if nUser is not None:
                     setUserPermissions(nUser,roleInfo,currUser)
-    #print(request.user)
-    #print("CurrUser",currUser)  
-    #logout(request) 
-    #user=User.objects    
      
 def setGroupPermissions(myGroup,roleInfo):
     #myGroup.permissions.clear()
@@ -433,7 +523,7 @@ def setGroupPermissions(myGroup,roleInfo):
             'CanChangeAPIKeys', 
             'CanViewLogs']:
        if getattr(roleInfo,permName):
-         print(myGroup,' has ' ,permName) 
+         #print(myGroup,' has ' ,permName) 
          permission = Permission.objects.get(content_type=content_type, codename=permName)
          myGroup.permissions.add(permission)
 
@@ -453,11 +543,11 @@ def setUserPermissions(myUser,roleInfo,currUser):
             'CanChangeGroups', 
             'CanChangeAPIKeys', 
             'CanViewLogs']:
+        #if a role has a permission then add permission to user
        if getattr(roleInfo,permName):
-        print('ROLE', roleInfo.RoleName,' gives user ',myUser.username,' perm ', permName)
         permission = Permission.objects.get(content_type=content_type, codename=permName)
         myUser.user_permissions.add(permission)
-    #if myUser.username==currUser:
+        #used to refresh permission cache
         myUser=get_object_or_404(User, pk=myUser.pk)
 
 #for dev to clean out temp groups and roles, as well as perms and users
@@ -488,17 +578,3 @@ def createSuperUser(request):
       role.save()
       calculatePerms(request)
     
-      #for permName in ['CanLogin',  
-      #     'CreatePage_View', 
-      #      'CreatePage_Action',
-      #      'PublishPage_View', 
-      #      'PublishPage_Action', 
-      #      'StatusPage_View',
-      #      'StatusPage_Edit', 
-      #      'StatusPage_Delete',
-      #      'CanChangePermissions', 
-      #      'CanChangeGroups', 
-      #      'CanChangeAPIKeys', 
-      #      'CanViewLogs']:
-      #  permission = Permission.objects.get(content_type=content_type, codename=permName)
-      #  myUser.user_permissions.add(permission)
