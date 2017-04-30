@@ -1,5 +1,5 @@
 ﻿{% extends "webapp/layout.html" %}
-{% load app_filters %}
+<!--{% load app_filters %}-->
 {% block content %}
 <style>
     table, th, td {
@@ -118,8 +118,8 @@
                 <h4 sstyle="text-align:center">No roles exist yet</h4>
             </div>
             {% else %}
-            <!--<select name="RoleName" id="editSelector" onchange="myFunction(this.value,{{roles|to_json}})">-->
-            <select name="RoleName" id="editSelector">
+        
+           <select name="RoleName" id="editSelector">
                 {% for role in roles %}
 
                 <option value="{{role.pk}}">{{role.RoleName}}</option>
