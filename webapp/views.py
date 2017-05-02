@@ -106,6 +106,7 @@ def addIfNewUser(request):
 
 def logout_view(request):
    logout(request)
+   request.user.auth_token.delete()
    return render(
             request,
             'webapp/logout.html',
