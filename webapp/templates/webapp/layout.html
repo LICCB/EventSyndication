@@ -30,6 +30,12 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a href="/eventsyndication/" class="navbar-brand">Long Island City Community Boathouse Syndication Tool</a>
+            {% if isLoggedOut %}
+                <a href="/eventsyndication/login" class="btn btn-default navbar-btn pull-right">Login</a>
+                {% else %}
+
+                <a class="navbar-brand pull-right" style="float:right!important">Welcome {{ request.user.username }}!</a>
+                {% endif %}
             </div>
 
         </div>

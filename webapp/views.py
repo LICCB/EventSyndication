@@ -116,7 +116,8 @@ def logout_view(request):
             'webapp/logout.html',
             {
                 'title':'Syndication Tool',
-                'year':datetime.now().year
+                'year':datetime.now().year,
+                'isLoggedOut':True
             }
         )
 
@@ -142,7 +143,8 @@ def home(request,error=''):
             {
                 'title':'Syndication Tool',
                 'year':datetime.now().year,
-                'errorMessage':"You don't have permission to be logged in"
+                'errorMessage':"You don't have permission to be logged in",
+                'isLoggedOut':True
             }
         )
 
