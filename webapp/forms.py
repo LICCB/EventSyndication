@@ -30,10 +30,16 @@ class AddEventForm(ModelForm):
         fields = [
             "EventName",
             "EventDescription",
+            "PoCName",
+            "PoCEmail",
+            "PoCNumber",
+            "Fee",
+            "Availability",
             "EventMeetLocation",
             "EventDestination",
             "EventStart",
-            "EventEnd"
+            "EventEnd",
+            "RegistrationLink"
         ]
         labels = {
             "EventName":"Event Name",
@@ -41,7 +47,11 @@ class AddEventForm(ModelForm):
             "EventMeetLocation" : "Meet Location",
             "EventDestination" : "Destination",
             "EventStart" : "Start Time (MM/DD/YYYY HH:MM)",
-            "EventEnd" : "End Time (MM/DD/YYYY HH:MM)"
+            "EventEnd" : "End Time (MM/DD/YYYY HH:MM)",
+            "PoCName":"Point of Contact's Name",
+            "PoCEmail":"Point of Contact's Email",
+            "PoCNumber":"Point of Contact's Number",
+            "RegistrationLink":"Registration Link"
         }
 
 class PublicationsForm(forms.Form):

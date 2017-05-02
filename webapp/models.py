@@ -9,10 +9,16 @@ class EventInfo(models.Model):
      an individual trip."""
     EventName = models.CharField(max_length=50)
     EventDescription = models.TextField()
+    PoCName = models.CharField(max_length=50, blank=True)
+    PoCEmail = models.EmailField(max_length=100, blank=True)
+    PoCNumber = models.CharField(max_length=15, blank=True)
+    Fee = models.CharField(max_length=50, blank=True)
+    Availability = models.CharField(max_length=50, blank=True)
     EventMeetLocation = models.CharField(max_length=50)
     EventDestination = models.CharField(max_length=50)
     EventStart = models.DateTimeField()
     EventEnd = models.DateTimeField()
+    RegistrationLink = models.URLField()
     def __unicode__(self):
         return self.EventName
 
@@ -25,7 +31,8 @@ class ApiKey(models.Model):
 
     @classmethod
     def create(cls, service, key):
-        apiKey = cls(service = service, key = key)
+        """Method for creating a new API key"""
+        apiKey = cls(service=service, key=key)
         return apiKey
 
 class Services(models.Model):
@@ -42,5 +49,6 @@ class Publications(models.Model):
 
     @classmethod
     def create(cls, EventID, Service):
+        """Method to create new publication entry. Default status is pending"""
         publication=cls(EventID=EventID, Service=Service,Status='Pending')
         return publication
