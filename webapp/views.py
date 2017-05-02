@@ -48,7 +48,7 @@ SUPERUSER="stanislavgrozny@gmail.com"
 def mylogin(request):
     #cleanData()
     #createSuperUser(request)
-    print('check if signed in')
+    #print('check if signed in')
     if(isUserSignedIntoGoogle(request)):
        addIfNewUser(request)
        url = reverse('home')
@@ -58,11 +58,11 @@ def mylogin(request):
     #if user click login button
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-       print('Entered post')
+       #print('Entered post')
        return get_profile_required(request)
        return HttpResponseRedirect('home')
    #load login page
-    print('not signed in')
+    #print('not signed in')
     return render(
         request,
         'webapp/login.html',
@@ -92,7 +92,7 @@ def addIfNewUser(request):
        #print(request.oauth.credentials.id_token.items())
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
            updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
-           print('user exists') 
+           #print('user exists') 
 		   ## Update the users name ( in the case that the user was created through group/role management pages)
            updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
            updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
@@ -105,7 +105,7 @@ def addIfNewUser(request):
          newUser.save()
        user = authenticate(username=request.oauth.credentials.id_token['email'], password='tempPass')
        if user is not None:
-           print('logging in user')
+           #print('logging in user')
            login(request, user)
 
 def logout_view(request):
@@ -154,7 +154,7 @@ def createEvent(request):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     form = AddEventForm()
-    print (request.user.has_perm('webapp.CreatePage_Action'))
+    #print (request.user.has_perm('webapp.CreatePage_Action'))
     return render(
     request,
     'webapp/createEvent.html',
@@ -178,7 +178,7 @@ def publish(request):
         event = EventInfo.objects.get(id=request.POST.get('EventID'))
     elif request.method == "POST":
         if request.user.has_perm('webapp.CreatePage_Action'):
-          print('user has permission to action on createEvent')
+          #print('user has permission to action on createEvent')
           form = AddEventForm(request.POST)
           if form.is_valid():
               event = form.save()
@@ -186,7 +186,7 @@ def publish(request):
           else:
               return messages.error(request, "Error")
         else:
-            print('user doesnt have permission to action on createEvent')
+            #print('user doesnt have permission to action on createEvent')
             return render(
             request,
             'webapp/createEvent.html',
@@ -391,22 +391,22 @@ def group_View(request):
         if request.method == "POST":
             form = AddGroupForm(request.POST)
             if form.is_valid():
-                    print("validForm")
+                    #print("validForm")
                     groupInfo=form.cleaned_data
-                    print(request.POST)
+                    #print(request.POST)
                     if 'deleteGroup' in request.POST:
-                        print('delete')
+                        #print('delete')
                         Group.objects.filter(name=groupInfo.get("groupName")).delete()
                         lastAction=3
                     elif 'editGroup' in request.POST:
                         #delete old one and save the update
-                        print('edit')
+                        #print('edit')
                         Group.objects.filter(name=groupInfo.get("groupName")).delete()
                         createGroup(groupInfo)
                         lastAction=2
 
                     else:
-                         print('add')
+                         #print('add')
                          createGroup(groupInfo) #recalculate permissions 
                          lastAction=1
 
@@ -465,7 +465,7 @@ def role_View(request):
                 #print('valid form')
                 roleInfo=form.cleaned_data
                 if 'deleteRole' in request.POST:
-                    print('delete')
+                    #print('delete')
                     LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
                     lastAction=3
                 elif 'editRole' in request.POST:
@@ -479,7 +479,7 @@ def role_View(request):
                 calculatePerms(request)
                 loadRoleM(request,lastAction)
             else:
-                print('error message')
+                #print('error message')
                 messages.error(request, "Error")
         return loadRoleM(request,lastAction)
    else:
@@ -502,7 +502,7 @@ def loadRoleM(request,lastAction):
 
 def calculatePerms(request):
     currUser=request.user
-    print("CurrUser",currUser)
+    #print("CurrUser",currUser)
     groups=Group.objects.all()
     users=User.objects.all()
     for group in groups:
@@ -512,7 +512,7 @@ def calculatePerms(request):
     roles=LICCB_Role.objects.all()
 
     for roleInfo in roles:
-             print(roleInfo.RoleName)
+             #print(roleInfo.RoleName)
              userList=roleInfo.Users.split(",")
              groupList=roleInfo.Groups.split(",")
              if groupList:
@@ -524,7 +524,7 @@ def calculatePerms(request):
              if userList:
               for user in userList:
                  if user:
-                   print(user)
+                   #print(user)
                    if not User.objects.filter(username=user).exists():
                      new_User, created = User.objects.get_or_create(username=user)
                      new_User.set_password('tempPass')
