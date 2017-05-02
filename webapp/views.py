@@ -48,7 +48,7 @@ def mylogin(request):
     #cleanData()
 
     ####Uncomment and run the below line to setup the superuser
-    #createSuperUser(request)
+    createSuperUser(request)
 
     if(isUserSignedIntoGoogle(request)):
        addIfNewUser(request)
