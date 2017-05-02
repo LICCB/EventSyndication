@@ -43,12 +43,13 @@ import logging
 
 register = template.Library()
 logger = logging.getLogger(__name__)
-SUPERUSER="stanislavgrozny@gmail.com"
 
 def mylogin(request):
     #cleanData()
+
+    ####Uncomment and run the below line to setup the superuser
     #createSuperUser(request)
-    #print('check if signed in')
+
     if(isUserSignedIntoGoogle(request)):
        addIfNewUser(request)
        url = reverse('home')
@@ -58,11 +59,9 @@ def mylogin(request):
     #if user click login button
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-       #print('Entered post')
        return get_profile_required(request)
        return HttpResponseRedirect('home')
    #load login page
-    #print('not signed in')
     return render(
         request,
         'webapp/login.html',
@@ -89,10 +88,8 @@ def isUserSignedIntoGoogle(request):
 @decorators.oauth_enabled
 def addIfNewUser(request):
     if request.oauth.has_credentials():
-       #print(request.oauth.credentials.id_token.items())
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
            updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
-           #print('user exists') 
 		   ## Update the users name ( in the case that the user was created through group/role management pages)
            updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
            updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
@@ -105,12 +102,10 @@ def addIfNewUser(request):
          newUser.save()
        user = authenticate(username=request.oauth.credentials.id_token['email'], password='tempPass')
        if user is not None:
-           #print('logging in user')
            login(request, user)
 
 def logout_view(request):
    logout(request)
-   #return HttpResponseRedirect('login')
    return render(
             request,
             'webapp/logout.html',
@@ -122,7 +117,6 @@ def logout_view(request):
         )
 
 @login_required(login_url='/eventsyndication/login')
-#@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
 def home(request,error=''):
     if request.user.has_perm('webapp.CanLogin'):
         """Renders the home page."""
@@ -148,15 +142,11 @@ def home(request,error=''):
             }
         )
 
-
-
-#@permission_required('webapp.CreatePage_View', login_url='/eventsyndication/')
 def createEvent(request):
   if request.user.has_perm('webapp.CreatePage_View'):  
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     form = AddEventForm()
-    #print (request.user.has_perm('webapp.CreatePage_Action'))
     return render(
     request,
     'webapp/createEvent.html',
@@ -171,7 +161,6 @@ def createEvent(request):
   else:
       return loadHomeWithPermError(request,"You don't have permissions to create events")
 
-#@permission_required('webapp.PublishPage_View', login_url='/eventsyndication/')
 def publish(request):
     """Renders the publish event page."""
     assert isinstance(request, HttpRequest)
@@ -180,7 +169,6 @@ def publish(request):
         event = EventInfo.objects.get(id=request.POST.get('EventID'))
     elif request.method == "POST":
         if request.user.has_perm('webapp.CreatePage_Action'):
-          #print('user has permission to action on createEvent')
           form = AddEventForm(request.POST)
           if form.is_valid():
               event = form.save()
@@ -188,7 +176,6 @@ def publish(request):
           else:
               return messages.error(request, "Error")
         else:
-            #print('user doesnt have permission to action on createEvent')
             return render(
             request,
             'webapp/createEvent.html',
@@ -259,10 +246,7 @@ def syndicate(request):
             else:
                 messages.error(request,"Error")
         
-            #StatusPage_View',
-#            'StatusPage_Edit', 
-#            'StatusPage_Delete',
-#@permission_required('webapp.StatusPage_View', login_url='/eventsyndication/')
+
 def pubStatus(request):
     """Renders the createEvent page."""
     if request.user.has_perm('webapp.StatusPage_View'):
@@ -346,7 +330,6 @@ def admin(request):
         }
     )
 
-#@permission_required('webapp.CanChangeAPIKeys', login_url='/eventsyndication/')
 def apiKeys(request):
   if request.user.has_perm('webapp.CanChangeAPIKeys'):
     """Renders the API keys page"""
@@ -383,7 +366,6 @@ def add(request):
                               'year': datetime.now().year
                           })
 
-#@permission_required('webapp.CanChangeGroups', login_url='/eventsyndication/')
 def group_View(request):
 
     if request.user.has_perm('webapp.CanChangeGroups'):    
@@ -393,22 +375,17 @@ def group_View(request):
         if request.method == "POST":
             form = AddGroupForm(request.POST)
             if form.is_valid():
-                    #print("validForm")
                     groupInfo=form.cleaned_data
-                    #print(request.POST)
                     if 'deleteGroup' in request.POST:
-                        #print('delete')
                         Group.objects.filter(name=groupInfo.get("groupName")).delete()
                         lastAction=3
                     elif 'editGroup' in request.POST:
                         #delete old one and save the update
-                        #print('edit')
                         Group.objects.filter(name=groupInfo.get("groupName")).delete()
                         createGroup(groupInfo)
                         lastAction=2
 
                     else:
-                         #print('add')
                          createGroup(groupInfo) #recalculate permissions 
                          lastAction=1
 
@@ -454,20 +431,14 @@ def loadGroupM(request,lastAction):
 #@permission_required('webapp.CanChangePermissions', login_url='/eventsyndication/')
 def role_View(request):
    if request.user.has_perm('webapp.CanChangePermissions'):
-        #print('My groups ',request.user.groups.all())
         form = AddRoleForm()
-        #print(LICCB_Role.objects.all())
         lastAction=0
         assert isinstance(request, HttpRequest)
         if request.method == "POST":
-            #print('Hit role post')
             form = AddRoleForm(request.POST)
             if form.is_valid():
-
-                #print('valid form')
                 roleInfo=form.cleaned_data
                 if 'deleteRole' in request.POST:
-                    #print('delete')
                     LICCB_Role.objects.filter(RoleName=roleInfo.get("RoleName")).delete()
                     lastAction=3
                 elif 'editRole' in request.POST:
@@ -481,7 +452,6 @@ def role_View(request):
                 calculatePerms(request)
                 loadRoleM(request,lastAction)
             else:
-                #print('error message')
                 messages.error(request, "Error")
         return loadRoleM(request,lastAction)
    else:
@@ -498,13 +468,12 @@ def loadRoleM(request,lastAction):
         'year':datetime.now().year,
         'form': AddRoleForm(),
         'groups':Group.objects.all(),
-        'roles':LICCB_Role.objects.filter(~Q(RoleName="BUILTINSUPERUSER")),#returb all roles but superuser one
+        'roles':LICCB_Role.objects.filter(~Q(RoleName="BUILTINSUPERUSER")),#return all roles but superuser one
         'lastAction':lastAction
     })
 
 def calculatePerms(request):
     currUser=request.user
-    #print("CurrUser",currUser)
     groups=Group.objects.all()
     users=User.objects.all()
     for group in groups:
@@ -514,19 +483,16 @@ def calculatePerms(request):
     roles=LICCB_Role.objects.all()
 
     for roleInfo in roles:
-             #print(roleInfo.RoleName)
              userList=roleInfo.Users.split(",")
              groupList=roleInfo.Groups.split(",")
              if groupList:
               for group in groupList:
                   if group: 
-                    #new_group, created = Group.objects.get_or_create(name=group)
                     group = Group.objects.get(name=group)
                     setGroupPermissions(group,roleInfo)
              if userList:
               for user in userList:
                  if user:
-                   #print(user)
                    if not User.objects.filter(username=user).exists():
                      new_User, created = User.objects.get_or_create(username=user)
                      new_User.set_password('tempPass')
@@ -537,7 +503,7 @@ def calculatePerms(request):
                     setUserPermissions(nUser,roleInfo,currUser)
      
 def setGroupPermissions(myGroup,roleInfo):
-    #myGroup.permissions.clear()
+    myGroup.permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
     
     for permName in ['CanLogin',  
@@ -552,13 +518,11 @@ def setGroupPermissions(myGroup,roleInfo):
             'CanChangeGroups', 
             'CanChangeAPIKeys', 
             'CanViewLogs']:
-       if getattr(roleInfo,permName):
-         #print(myGroup,' has ' ,permName) 
+       if getattr(roleInfo,permName): 
          permission = Permission.objects.get(content_type=content_type, codename=permName)
          myGroup.permissions.add(permission)
 
 def setUserPermissions(myUser,roleInfo,currUser):
-    #myUser.user_permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
     
     for permName in ['CanLogin',  
@@ -590,7 +554,7 @@ def cleanData():
 #for Dev to let your user have all perms
 def createSuperUser(request):
    if not LICCB_Role.objects.filter(RoleName='BUILTINSUPERUSER').exists():
-      role= LICCB_Role(RoleName='BUILTINSUPERUSER',Users=SUPERUSER)
+      role= LICCB_Role(RoleName='BUILTINSUPERUSER',Users=settings.SUPERUSER)
       for permName in ['CanLogin',  
            'CreatePage_View', 
             'CreatePage_Action',
