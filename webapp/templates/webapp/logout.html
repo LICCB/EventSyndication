@@ -1,0 +1,26 @@
+{% extends "webapp/layout.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12 col-s-12">
+        {% if errorMessage %}
+        <br /><br />
+        <div class="alert alert-danger" role="alert">
+            {{errorMessage}}
+            </div>
+            {% endif %}
+            <h2>You're logged out</h2>
+
+        </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    {% load staticfiles %}
+<script src="{% static 'webapp/scripts/jquery.validate.min.js' %}"></script>
+
+{% endblock %}
