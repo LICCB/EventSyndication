@@ -80,6 +80,10 @@ label input{
     text-align:center;
 }
 
+#issueLink {
+text-align:right;
+}
+
 /*  DROP DOWN*/
 #currentRoute {
     background-color: #4CAF50;
@@ -111,6 +115,13 @@ label input{
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
+.navbar-default {
+    background-color:#002171;
+}
+
+.navbar-brand {
+    color:white !important;
+}
 .dropdown-content li{
     padding-top:5px;
     padding-left:0px;
