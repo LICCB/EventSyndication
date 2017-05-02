@@ -27,12 +27,15 @@ from envparse import env
 # FACEBOOK_CLIENT_SECRET - secret used for facebook application
 # GOOGLE_OAUTH2_CLIENT_ID -client_id for google application
 # GOOGLE_OAUTH2_CLIENT_SECRET - secret used for google application
-
+# SUPERUSER -the google email of the user with all permissions
 #OPTIONAL ENVIRONMENT VARIABLES:
 # debug ---
 # DEBUG_ENABLED - set this environment variable to enable debug mode
 
 
+
+
+SUPERUSER=env('SUPERUSER')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
