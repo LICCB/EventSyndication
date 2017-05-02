@@ -110,21 +110,42 @@ def addIfNewUser(request):
 
 def logout_view(request):
    logout(request)
-   return HttpResponseRedirect('login')
+   #return HttpResponseRedirect('login')
+   return render(
+            request,
+            'webapp/logout.html',
+            {
+                'title':'Syndication Tool',
+                'year':datetime.now().year
+            }
+        )
 
 @login_required(login_url='/eventsyndication/login')
-@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
-def home(request):
-    """Renders the home page."""
-    assert isinstance(request, HttpRequest)
-    return render(
-        request,
-        'webapp/index.html',
-        {
-            'title':'Syndication Tool',
-            'year':datetime.now().year,
-        }
-    )
+#@permission_required('webapp.CanLogin', login_url='/eventsyndication/logout')
+def home(request,error=''):
+    if request.user.has_perm('webapp.CanLogin'):
+        """Renders the home page."""
+        assert isinstance(request, HttpRequest)
+        return render(
+            request,
+            'webapp/index.html',
+            {
+                'title':'Syndication Tool',
+                'year':datetime.now().year,
+                'errorMessage':error
+            }
+        )
+    else:
+        return render(
+            request,
+            'webapp/logout.html',
+            {
+                'title':'Syndication Tool',
+                'year':datetime.now().year,
+                'errorMessage':"You don't have permission to be logged in"
+            }
+        )
+
 
 
 #@permission_required('webapp.CreatePage_View', login_url='/eventsyndication/')
@@ -308,14 +329,7 @@ def pubStatus(request):
         return loadHomeWithPermError(request,"You do not habe access to view the publish status page" )
      
 def loadHomeWithPermError(request,error):
-    return render(
-            request,
-            'webapp/index.html',
-            {
-                'title':'Syndication Tool',
-                'year':datetime.now().year,
-                'errorMessage':error
-            })
+   return home(request,error)
 
 def admin(request):
     """Renders the about page."""
