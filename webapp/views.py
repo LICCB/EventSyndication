@@ -4,10 +4,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render,get_object_or_404
 
 from django.http import HttpRequest
-from django.http import HttpResponse
-from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect
-from django.http import HttpRequest
 
 from datetime import datetime
 
@@ -33,7 +30,7 @@ from oauth2client.contrib.django_util import decorators
 #needed for user control and authentication
 from django.contrib.auth import authenticate, login, logout
 # Needed for permission control
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
 
@@ -70,7 +67,7 @@ def mylogin(request):
             'title':'Login',
             'message':'Your application description page.',
             'year':datetime.now().year,
-            
+
         })
 
 @decorators.oauth_required
@@ -94,7 +91,7 @@ def addIfNewUser(request):
 		   ## Update the users name ( in the case that the user was created through group/role management pages)
            updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
            updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
-           updateNameInfo.save()         
+           updateNameInfo.save()
        else:
 	   #Create a new user from the logged in google info
          newUser=User.objects.create_user(request.oauth.credentials.id_token['email'],request.oauth.credentials.id_token['email'],'tempPass')
@@ -145,7 +142,7 @@ def home(request,error=''):
         )
 
 def createEvent(request):
-  if request.user.has_perm('webapp.CreatePage_View'):  
+  if request.user.has_perm('webapp.CreatePage_View'):
     """Renders the createEvent page."""
     assert isinstance(request, HttpRequest)
     form = AddEventForm()
@@ -216,7 +213,6 @@ def syndicate(request):
     """Renders the pubStatus page for a newly created event and attempts syndication"""
     assert isinstance(request, HttpRequest)
     if request.method == "POST":
-        
             form = PublicationsForm(request.POST)
             if form.is_valid():
                 serviceList = request.POST.copy()
@@ -243,11 +239,11 @@ def syndicate(request):
                             'publications': postings,
                         }
                     )
-                else:   
+                else:
                     return loadHomeWithPermError(request,"Your event has been syndicated, but you don't have access to view the progress of the syndication")
             else:
                 messages.error(request,"Error")
-        
+
 
 def pubStatus(request):
     """Renders the createEvent page."""
@@ -255,7 +251,7 @@ def pubStatus(request):
         assert isinstance(request, HttpRequest)
         events = EventInfo.objects.all().order_by('-EventStart')
         if request.method == "POST" and request.POST.get('deleteEvent') == "true":
-          if request.user.has_perm('webapp.StatusPage_Delete'):  
+          if request.user.has_perm('webapp.StatusPage_Delete'):
             EventInfo.objects.filter(id=request.POST.get('EventID')).delete()
             notice = 'Event deleted successfully.'
           else:
@@ -329,7 +325,7 @@ def pubStatus(request):
         )
     else:
         return loadHomeWithPermError(request,"You do not habe access to view the publish status page" )
-     
+
 def loadHomeWithPermError(request,error):
    return home(request,error)
 
@@ -408,7 +404,7 @@ def add(request):
 
 def group_View(request):
 
-    if request.user.has_perm('webapp.CanChangeGroups'):    
+    if request.user.has_perm('webapp.CanChangeGroups'):
         form = AddGroupForm()
         lastAction=0
         assert isinstance(request, HttpRequest)
@@ -426,7 +422,7 @@ def group_View(request):
                         lastAction=2
 
                     else:
-                         createGroup(groupInfo) #recalculate permissions 
+                         createGroup(groupInfo) #recalculate permissions
                          lastAction=1
 
                     calculatePerms(request)
@@ -443,7 +439,7 @@ def createGroup(groupInfo):
     #Creates a group
     new_group, created = Group.objects.get_or_create(name=groupInfo.get('groupName'))
     new_group.save()
-    g = Group.objects.get(name=groupInfo.get('groupName')) 
+    g = Group.objects.get(name=groupInfo.get('groupName'))
     for userEmail in userEmails:
         user =User.objects.filter(username=userEmail)
         if not user:
@@ -452,7 +448,7 @@ def createGroup(groupInfo):
             newUser.save()
         user =User.objects.filter(username=userEmail)
         user.first().groups.add(g)
-           
+
 
 
 def loadGroupM(request,lastAction):
@@ -527,7 +523,7 @@ def calculatePerms(request):
              groupList=roleInfo.Groups.split(",")
              if groupList:
               for group in groupList:
-                  if group: 
+                  if group:
                     group = Group.objects.get(name=group)
                     setGroupPermissions(group,roleInfo)
              if userList:
@@ -537,45 +533,45 @@ def calculatePerms(request):
                      new_User, created = User.objects.get_or_create(username=user)
                      new_User.set_password('tempPass')
                      new_User.save()
-                   
+
                    nUser = User.objects.get(username=user)
                    if nUser is not None:
                     setUserPermissions(nUser,roleInfo,currUser)
-     
+
 def setGroupPermissions(myGroup,roleInfo):
     myGroup.permissions.clear()
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
-    
-    for permName in ['CanLogin',  
-           'CreatePage_View', 
+
+    for permName in ['CanLogin',
+           'CreatePage_View',
             'CreatePage_Action',
-            'PublishPage_View', 
-            'PublishPage_Action', 
+            'PublishPage_View',
+            'PublishPage_Action',
             'StatusPage_View',
-            'StatusPage_Edit', 
+            'StatusPage_Edit',
             'StatusPage_Delete',
-            'CanChangePermissions', 
-            'CanChangeGroups', 
-            'CanChangeAPIKeys', 
+            'CanChangePermissions',
+            'CanChangeGroups',
+            'CanChangeAPIKeys',
             'CanViewLogs']:
-       if getattr(roleInfo,permName): 
+       if getattr(roleInfo,permName):
          permission = Permission.objects.get(content_type=content_type, codename=permName)
          myGroup.permissions.add(permission)
 
 def setUserPermissions(myUser,roleInfo,currUser):
     content_type = ContentType.objects.get_for_model(GlobalPermissions)
-    
-    for permName in ['CanLogin',  
-           'CreatePage_View', 
+
+    for permName in ['CanLogin',
+           'CreatePage_View',
             'CreatePage_Action',
-            'PublishPage_View', 
-            'PublishPage_Action', 
+            'PublishPage_View',
+            'PublishPage_Action',
             'StatusPage_View',
-            'StatusPage_Edit', 
+            'StatusPage_Edit',
             'StatusPage_Delete',
-            'CanChangePermissions', 
-            'CanChangeGroups', 
-            'CanChangeAPIKeys', 
+            'CanChangePermissions',
+            'CanChangeGroups',
+            'CanChangeAPIKeys',
             'CanViewLogs']:
         #if a role has a permission then add permission to user
        if getattr(roleInfo,permName):
@@ -589,23 +585,23 @@ def cleanData():
     print('Purging users, groups,, and roles')
     User.objects.all().delete()
     Group.objects.all().delete()
-    LICCB_Role.objects.all().delete()  
-     
+    LICCB_Role.objects.all().delete()
+
 #for Dev to let your user have all perms
 def createSuperUser(request):
    if not LICCB_Role.objects.filter(RoleName='BUILTINSUPERUSER').exists():
       role= LICCB_Role(RoleName='BUILTINSUPERUSER',Users=settings.SUPERUSER)
-      for permName in ['CanLogin',  
-           'CreatePage_View', 
+      for permName in ['CanLogin',
+           'CreatePage_View',
             'CreatePage_Action',
-            'PublishPage_View', 
-            'PublishPage_Action', 
+            'PublishPage_View',
+            'PublishPage_Action',
             'StatusPage_View',
-            'StatusPage_Edit', 
+            'StatusPage_Edit',
             'StatusPage_Delete',
-            'CanChangePermissions', 
-            'CanChangeGroups', 
-            'CanChangeAPIKeys', 
+            'CanChangePermissions',
+            'CanChangeGroups',
+            'CanChangeAPIKeys',
             'CanViewLogs']:
           setattr(role,permName,True)
       addIfNewUser(request)
