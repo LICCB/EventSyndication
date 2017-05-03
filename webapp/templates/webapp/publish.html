@@ -4,6 +4,11 @@
 
 <div class="card">
     <h1 class="pageHeaders" id="pubHeader">Publish "{{event.EventName}}"</h1>
+    {% if not canAction %}
+    <div class="alert alert-danger" style="text-align:center" role="alert">
+        You don't have permission to publish events. Please contact the admin if you believe you should have access.
+    </div>
+    {% endif %}
 		<div class="cardBody"> 
         <br>
         <form action="syndicate" method="post">
@@ -11,7 +16,11 @@
                 {% csrf_token %}
                 {{ form.as_table}}
             </table>
+            {% if not canAction %}
+            <input type="submit" value="Syndicate" disabled="disabled">
+            {% else %}
             <input type="submit" value="Syndicate">
+            {% endif %}
         </form>
         <form action="pubStatus" method="post"> {% csrf_token %}
             <button name="EventID" type="submit" value="{{event.pk}}">Publish Later</button>
@@ -20,5 +29,5 @@
         <!--<p><i>Note: Do not refresh the page. The event has already been created and will be duplicated.</i></p>-->
 	</div>
 	</div>
-	<script src="../../static/webapp/scripts/publishEventPage/pubEvent.js" type="text/javascript"></script>
+	<!--<script src="../../static/webapp/scripts/publishEventPage/pubEvent.js" type="text/javascript"></script>-->
 {% endblock %}

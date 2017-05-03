@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import ModelForm
 from webapp.models import EventInfo
 from webapp.models import Services
+from webapp.models import LICCB_Role
 
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
@@ -21,6 +22,32 @@ class BootstrapAuthenticationForm(AuthenticationForm):
                                    'placeholder':'Password'}))
 
 
+class AddGroupForm(forms.Form):
+    """ModelForm for Add group page."""
+    groupName=forms.CharField(label='Group Name', max_length=50)
+    Children=forms.CharField(label='Comma delimited users',max_length=256,required = False)   
+
+class AddRoleForm(ModelForm):
+    """ModelForm for Add Event page."""
+    class Meta:
+        model = LICCB_Role
+        fields = [
+        "RoleName",
+    "Groups",
+    "Users",
+    "CanLogin",
+    "CreatePage_View",
+   "CreatePage_Action",
+    "PublishPage_View",
+    "PublishPage_Action",
+    "StatusPage_View",
+    "StatusPage_Edit",
+    "StatusPage_Delete",
+    "CanChangePermissions",
+    "CanChangeGroups",
+    "CanChangeAPIKeys",
+    "CanViewLogs"
+    ]
 
 
 class AddEventForm(ModelForm):
