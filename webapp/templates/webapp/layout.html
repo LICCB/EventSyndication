@@ -1,27 +1,25 @@
 ﻿<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-    <title>{{ title }}</title>
-    {% load staticfiles %}
-    <script src="{% static 'webapp/scripts/jquery-1.10.2.js' %}"></script>
-	<link rel="stylesheet" type="text/css" href="{% static 'webapp/content/sidebar.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/bootstrap.min.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/site.css' %}" />
-	 <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/card.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'PlugIns/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
-    {% comment %}
-    
-    <script src="{% static 'webapp/scripts/bootstrap.js' %}"></script>
-    <script src="{% static 'webapp/scripts/respond.js' %}"></script>
-    <script src="{% static 'webapp/scripts/modernizr-2.6.2.js' %}"></script>
-    {% endcomment %}
-</head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>{{ title }}</title>
+        {% load staticfiles %}
+        <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/bootstrap.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/sidebar.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/site.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'webapp/content/card.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'PlugIns/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
+        {% comment %}
+        <script src="{% static 'webapp/scripts/jquery-1.10.2.js' %}"></script>
+        {% endcomment %}
+
+        <script src="{% static 'webapp/scripts/bootstrap.min.js' %}"></script>
+    </head>
 
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -40,36 +38,34 @@
                 <a href="/eventsyndication/login" class="btn btn-default navbar-btn pull-right">Login</a>
                 {% endif %}
             </div>
-
+            </div>
         </div>
-    </div>
 
-    <div class="container body-content">
-		<div id="wrapper">
-			<div id="sidebar-wrapper">
-				<ul class="sidebar-nav">
-					<li>
-						<a href="{% url 'createEvent' %}">Create Event</a>
-					</li>
-					<li>
-						<a href="{% url 'pubStatus' %}">Event Status</a>
-					</li>
-					<li>
-						<a href="{% url 'admin' %}">Administration</a>
-					</li>
-				</ul>
-			</div>
-		</div>
+        <div class="container body-content">
+            <div id="sidebar-wrapper">
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="{% url 'createEvent' %}">Create Event</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pubStatus' %}">Event Status</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin' %}">Administration</a>
+                    </li>
+                </ul>
+            </div>
 
-{% block content %}{% endblock %}
-        <hr/>
-        <footer style="margin-left:250px">
-            <p>&copy; {{ year }} - Long Island City Community Boathouse</p>
-        </footer>
-    </div>
+            {% block content %}{% endblock %}
+            <hr/>
+            <footer style="margin-left:250px">
+                <p>&copy; {{ year }} - Long Island City Community Boathouse</p>
+                <p><a href="https://github.com/LICCB/EventSyndication/issues">Report a Problem</a></p>
+            </footer>
+        </div>
 
 
-{% block scripts %}{% endblock %}
+        {% block scripts %}{% endblock %}
 
-</body>
+    </body>
 </html>

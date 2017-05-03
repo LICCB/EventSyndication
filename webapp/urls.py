@@ -21,9 +21,11 @@ url(r'^$', views.home, name='home'),
     url(r'^login$', views.mylogin, name='login'),
     url(r'^logout$',views.logout_view,name='logout'),
     url(r'^apiKeys$', views.apiKeys, name='apiKeys'),
+    url(r'^EBapiKeys$', views.EBapiKeys, name='EBapiKeys'),
     url(r'^syndicate$', views.syndicate, name='syndicate'),
     url(r'^profile_required$', views.get_profile_required),
     url(r'^groupManagement$',views.group_View, name='groupManagement'),
     url(r'^roleManagement$',views.role_View, name='roleManagement'),
     url(r'^oauth2/', urls.include(django_util_site.urls))
+
 ]

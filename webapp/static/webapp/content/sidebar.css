@@ -1,5 +1,5 @@
-#wrapper {
-    padding-left: 0;
+#iframeWrapper {
+    margin-left:150px;
 }
 
 #sidebar-wrapper {
@@ -10,7 +10,7 @@
     height: 100%;
     margin-left: -250px;
     overflow-y: auto;
-    background: #000;
+    background: #0D47A1;
     /*-webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
@@ -38,7 +38,7 @@
 .sidebar-nav li a {
     display: block;
     text-decoration: none;
-    color: #999999;
+    color: white;
 }
 
 .sidebar-nav li a:hover {

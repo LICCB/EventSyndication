@@ -11,6 +11,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from webapp.api_helpers import facebook
+from webapp.api_helpers import eventbrite
 from django.db.models import Q
 #our models
 from webapp.models import ApiKey
@@ -290,8 +291,22 @@ def pubStatus(request):
                 }
             )
         else:
-            notice = None
-        event = events.first()
+            messages.error(request,"Error")
+
+def pubStatus(request):
+    """Renders the createEvent page."""
+    assert isinstance(request, HttpRequest)
+
+    """Populates the events variables with the list of all events in the db"""
+    events = EventInfo.objects.all().order_by('-EventStart')
+
+    """If the request came from the deleteEvent button, delete and fire notice text"""
+    """Else, gather info on selected event."""
+    if request.method == "POST" and request.POST.get('deleteEvent') == "true":
+        EventInfo.objects.filter(id=request.POST.get('EventID')).delete()
+        notice = 'Event deleted successfully.'
+    elif request.method == "POST":
+        event = events.get(id=request.POST.get('EventID'))
         postings = Publications.objects.filter(EventID=event)
         return render(
             request,
@@ -332,19 +347,43 @@ def apiKeys(request):
     """Renders the API keys page"""
     assert isinstance(request, HttpRequest)
     facebook_code = request.GET.get('code')
-    logout = request.GET.get('logout')
+    FBlogout = request.GET.get('FBlogout')
     if(facebook_code is not None):
         """Update facebook user access token with code"""
         facebook.get_user_access_token(facebook_code, 'http://loopback.pizza:8000/eventsyndication/apiKeys')
-    if(logout is not None):
+    if(FBlogout is not None):
         ApiKey.objects.filter(service = 'facebook_user_access_token').delete()
     return render(
             request,
             'webapp/apiKeys.html',
             {
-            'client_id': settings.FACEBOOK_SETTINGS['client_id'],
+            'FBclient_id': settings.FACEBOOK_SETTINGS['client_id'],
             'hostname': settings.SERVER_HOSTNAME,
-            'name': facebook.get_user_info()
+            'FBname': facebook.get_user_info(),
+            'EBname': eventbrite.get_user_info(),
+            'EBclient_id':settings.EVENTBRITE_SETTINGS['client_key']
+            }
+            )
+
+def EBapiKeys(request):
+    """Handles the response from eventbrite and renders API keys page."""
+    assert isinstance(request, HttpRequest)
+    eventbrite_code = request.GET.get('code')
+    EBlogout = request.GET.get('EBlogout')
+    if (eventbrite_code is not None):
+        """Use code to get oauth token"""
+        eventbrite.get_user_access_token(eventbrite_code)
+    if (EBlogout is not None):
+        ApiKey.objects.filter(service='eventbrite_access_token').delete()
+    return render(
+            request,
+            'webapp/apiKeys.html',
+            {
+            'FBclient_id': settings.FACEBOOK_SETTINGS['client_id'],
+            'hostname': settings.SERVER_HOSTNAME,
+            'FBname': facebook.get_user_info(),
+            'EBname': eventbrite.get_user_info(),
+            'EBclient_id': settings.EVENTBRITE_SETTINGS['client_key']
             }
             )
   else:
@@ -568,4 +607,3 @@ def createSuperUser(request):
       addIfNewUser(request)
       role.save()
       calculatePerms(request)
-
