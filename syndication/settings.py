@@ -25,15 +25,17 @@ from envparse import env
 # facebook ---
 # FACEBOOK_CLIENT_ID - client_id for facebook application
 # FACEBOOK_CLIENT_SECRET - secret used for facebook application
+# Google oauth ---
 # GOOGLE_OAUTH2_CLIENT_ID -client_id for google application
 # GOOGLE_OAUTH2_CLIENT_SECRET - secret used for google application
 # SUPERUSER -the google email of the user with all permissions
 #OPTIONAL ENVIRONMENT VARIABLES:
 # debug ---
 # DEBUG_ENABLED - set this environment variable to enable debug mode
-
-
-
+# wordpress ---
+# WORDPRESS_USERNAME - username for wordpress api
+# WORDPRESS_PASSWORD - password for wordpress api
+# WORDPRESS_HOSTNAME - hostname for wordpress api
 
 SUPERUSER=env('SUPERUSER')
 
@@ -77,7 +79,7 @@ MIDDLEWARE = [
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
 	]
-	
+
 ROOT_URLCONF = 'syndication.urls'
 
 TEMPLATES = [
@@ -200,4 +202,9 @@ LOGGING = {
         },
     },
 }
+
+#wordpress stuff
+WORDPRESS_PASSWORD = env('WORDPRESS_PASSWORD', default='')
+WORDPRESS_USERNAME = env('WORDPRESS_USERNAME', default='')
+WORDPRESS_HOSTNAME = env('WORDPRESS_HOSTNAME', default='')
 
