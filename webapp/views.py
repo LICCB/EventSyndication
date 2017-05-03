@@ -91,8 +91,8 @@ def addIfNewUser(request):
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
            updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
 		   ## Update the users name ( in the case that the user was created through group/role management pages)
-           updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
-           updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
+           updateNameInfo.first_name=request.oauth.credentials.id_token['given_name']
+           updateNameInfo.last_name=request.oauth.credentials.id_token['family_name']
            updateNameInfo.save()         
        else:
 	   #Create a new user from the logged in google info
@@ -105,7 +105,8 @@ def addIfNewUser(request):
            login(request, user)
 
 def logout_view(request):
-   request.user.auth_token.delete()
+   if  request.user.auth_token:
+        request.user.auth_token.delete()
    logout(request)
    return render(
             request,
