@@ -314,12 +314,13 @@ def pubStatus(request):
             }
         )
     else:
-        return loadHomeWithPermError(request,"You do not habe access to view the publish status page" )
+        return loadHomeWithPermError(request,"You do not have access to view the publish status page" )
      
 def loadHomeWithPermError(request,error):
    return home(request,error)
 
 def admin(request):
+  if request.user.has_perm('webapp.CanChangeAPIKeys') or request.user.has_perm('webapp.CanChangeGroups') or request.user.has_perm('webapp.CanViewLogs') or request.user.has_perm('webapp.CanChangePermissions'):
     """Renders the about page."""
     assert isinstance(request, HttpRequest)
     return render(
@@ -331,7 +332,8 @@ def admin(request):
             'year':datetime.now().year
         }
     )
-
+  else:
+      return loadHomeWithPermError(request,"You do not have any admin rights" )
 def apiKeys(request):
   if request.user.has_perm('webapp.CanChangeAPIKeys'):
     """Renders the API keys page"""
