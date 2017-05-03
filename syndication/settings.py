@@ -148,6 +148,11 @@ FACEBOOK_SETTINGS = {
     'client_secret': env('FACEBOOK_CLIENT_SECRET')
 }
 
+EVENTBRITE_SETTINGS = {
+    'client_secret':env('EVENTBRITE_CLIENT_SECRET'),
+    'client_key': env('EVENTBRITE_CLIENT_KEY')
+}
+
 SERVER_HOSTNAME = env('SERVER_HOSTNAME')
 
 LOGGING = {

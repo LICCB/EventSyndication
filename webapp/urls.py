@@ -34,5 +34,6 @@ url(r'^$', views.home, name='home'),
         },
         name='logout'),
     url(r'^apiKeys$', views.apiKeys, name='apiKeys'),
+    url(r'^EBapiKeys$', views.EBapiKeys, name='EBapiKeys'),
     url(r'^syndicate$', views.syndicate, name='syndicate')
 ]

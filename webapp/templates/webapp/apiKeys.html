@@ -5,12 +5,18 @@
 <div class="card">
     <h1 class="pageHeader">API Key Management Page</h1>
     <p>
-    Facebook (Log out and log back in to update API Key)<br/>
-    <a href="apiKeys?logout=true">Logout</a> <br/>
-    <a href="https://www.facebook.com/v2.8/dialog/oauth?client_id={{ client_id }}&redirect_uri=http://{{ hostname }}/eventsyndication/apiKeys">Login</a> <br/>
-    Current user: {{name}} <br/>
+    <h2>Facebook</h2>
+    <p>(Log out and log back in to update API Key)</p>
+    <a href="apiKeys?FBlogout=true">Logout</a> <br/>
+    <a href="https://www.facebook.com/v2.8/dialog/oauth?client_id={{ FBclient_id }}&redirect_uri=http://{{ hostname }}/eventsyndication/apiKeys">Login</a> <br/>
+    Current user: {{FBname}} <br/>
     </p>
-    </h1>
+    <hr>
+    <h2>EventBrite</h2>
+    <a href="">Logout</a><br/>
+    <a href="https://www.eventbrite.com/oauth/authorize?response_type=code&client_id={{ EBclient_id }}">Login</a><br/>
+    Current user: {{EBname}}
+    <br/><br/>
 </div>
 
 {% endblock %}
