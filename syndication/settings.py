@@ -25,12 +25,17 @@ from envparse import env
 # facebook ---
 # FACEBOOK_CLIENT_ID - client_id for facebook application
 # FACEBOOK_CLIENT_SECRET - secret used for facebook application
-
+# GOOGLE_OAUTH2_CLIENT_ID -client_id for google application
+# GOOGLE_OAUTH2_CLIENT_SECRET - secret used for google application
+# SUPERUSER -the google email of the user with all permissions
 #OPTIONAL ENVIRONMENT VARIABLES:
 # debug ---
 # DEBUG_ENABLED - set this environment variable to enable debug mode
 
 
+
+
+SUPERUSER=env('SUPERUSER')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -69,7 +74,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+MIDDLEWARE_CLASSES = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+	]
+	
 ROOT_URLCONF = 'syndication.urls'
 
 TEMPLATES = [
@@ -147,7 +155,12 @@ FACEBOOK_SETTINGS = {
     'client_id': env('FACEBOOK_CLIENT_ID'),
     'client_secret': env('FACEBOOK_CLIENT_SECRET')
 }
+GOOGLE_OAUTH2_CLIENT_ID = env('GOOGLE_OAUTH2_CLIENT_ID')
 
+GOOGLE_OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET')
+
+GOOGLE_OAUTH2_SCOPES = (
+    'email', 'profile')
 SERVER_HOSTNAME = env('SERVER_HOSTNAME')
 
 LOGGING = {

@@ -9,6 +9,16 @@
             <p>{{notice}}</p>
         </div>
         {% endif %}
+    {% if not canEdit %}
+    <div class="alert alert-danger" style="text-align:center" role="alert">
+        You don't have permission to edit events. Please contact the admin if you believe you should have access.
+    </div>
+    {% endif %}
+    {% if not canDelete %}
+    <div class="alert alert-danger" style="text-align:center" role="alert">
+        You don't have permission to delete events. Please contact the admin if you believe you should have access.
+    </div>
+    {% endif %}
 		<div class="cardBody"> 
         {% if event %}
         <h3> Event: {{event.EventName}}</h3>
@@ -32,7 +42,11 @@
         <h5>There is no publication data for this event.</h5>
         <form action="pubStatus" method="post"> {% csrf_token %}
             <input type="hidden" name="deleteEvent" value="true" />
+            {% if not canDelete %}
+            <button name="EventID" type="submit" value="{{event.pk}}" disabled="disabled">Delete Event</button>
+            {% else %}
             <button name="EventID" type="submit" value="{{event.pk}}">Delete Event</button>
+            {% endif %}
         </form>
         {% endif %}
         <br>

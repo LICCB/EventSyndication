@@ -9,7 +9,7 @@
         <tr>
             <td>
                 <i class="fa fa-lock"></i><br />
-                <a href="#">Change Security and Admins</a>
+                <a href="{% url 'roleManagement' %}">Role and Permission Management</a>
             </td>
             <td>
                 <i class="fa fa-key"></i>
@@ -19,11 +19,12 @@
         </tr>
         <tr>
             <td>
-                <i class="fa fa-book" ></i><br />
-                <a href="#">View Logs</a>
+                <i class="fa fa-group"></i><br />
+                <a href="{% url 'groupManagement' %}">Manage Groups</a>
             </td>
             <td>
-
+                <i class="fa fa-book"></i><br />
+                <a href="#">View Logs</a>
             </td>
         </tr>
     </table>

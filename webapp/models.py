@@ -44,3 +44,47 @@ class Publications(models.Model):
     def create(cls, EventID, Service):
         publication=cls(EventID=EventID, Service=Service,Status='Pending')
         return publication
+
+class LICCB_Role(models.Model):
+    """Model for an internal role"""
+    RoleName=models.CharField(max_length=256,blank=False)
+    Groups=models.CharField(max_length=2048,blank=True)
+    Users=models.CharField(max_length=2048,blank=True)
+    CanLogin= models.BooleanField(default=True, blank=False)
+    CreatePage_View=models.BooleanField(default=False, blank=False)
+    CreatePage_Action=models.BooleanField(default=False, blank=False)
+    PublishPage_View=models.BooleanField(default=False, blank=False)
+    PublishPage_Action=models.BooleanField(default=False, blank=False)
+    StatusPage_View=models.BooleanField(default=False, blank=False)
+    StatusPage_Edit=models.BooleanField(default=False, blank=False)
+    StatusPage_Delete=models.BooleanField(default=False, blank=False)
+    CanChangePermissions=models.BooleanField(default=False, blank=False)
+    CanChangeGroups=models.BooleanField(default=False, blank=False)
+    CanChangeAPIKeys=models.BooleanField(default=False, blank=False) 
+    CanViewLogs=models.BooleanField(default=False, blank=False)
+
+#class LICCB_Relationship(models.Model):
+#    RoleName=models.CharField(max_length=256)
+#    childName=models.CharField(max_length=256)
+#    childType=models.IntegerField()
+
+class GlobalPermissions(models.Model):
+
+    class Meta:
+        managed = False  # No database table creation or deletion operations \
+                         # will be performed for this model. 
+
+        permissions = ( 
+            ('CanLogin', 'Allows user to login'),  
+            ('CreatePage_View', 'Can view the create page'), 
+            ('CreatePage_Action', 'Can create events'), 
+            ('PublishPage_View', 'Can view publish page'),  
+            ('PublishPage_Action', 'Can publish events'), 
+            ('StatusPage_View', 'Can view status of events'), 
+            ('StatusPage_Edit', 'Can edit posted events'),  
+            ('StatusPage_Delete', 'Can  delete posted events'), 
+            ('CanChangePermissions', 'can change permissions'),  
+            ('CanChangeGroups', 'Can change groups'), 
+            ('CanChangeAPIKeys', 'Can change API keys'),
+            ('CanViewLogs', 'Can view logs')
+        )

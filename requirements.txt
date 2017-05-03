@@ -1,4 +1,6 @@
-Django
+Django==1.10.0
 MySQL-python
 envparse
 google-api-python-client
+oauth2client==3.0.0
+jsonpickle==0.9.3
