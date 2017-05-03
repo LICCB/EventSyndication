@@ -186,8 +186,6 @@ def EBapiKeys(request):
         eventbrite.get_user_access_token(eventbrite_code)
     if (EBlogout is not None):
         ApiKey.objects.filter(service='eventbrite_access_token').delete()
-    return apiKeys(request)
-"""
     return render(
             request,
             'webapp/apiKeys.html',
@@ -199,5 +197,4 @@ def EBapiKeys(request):
             'EBclient_id': settings.EVENTBRITE_SETTINGS['client_key']
             }
             )
-"""
 

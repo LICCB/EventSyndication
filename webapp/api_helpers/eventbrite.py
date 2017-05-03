@@ -19,7 +19,6 @@ def get_user_access_token(EventbriteCode):
                                                              settings.EVENTBRITE_SETTINGS['client_key'])
     try:
         response = urllib2.urlopen(uri, post_request)
-        print(response.read())
         parsed_response = json.loads(response.read())
         access_token = parsed_response['access_token']
     except:
@@ -43,7 +42,6 @@ def get_user_info():
         uri = "https://www.eventbriteapi.com/v3/users/me?token={}".format(access_token.key)
         try:
             response = urllib2.urlopen(uri)
-            print "printing response below"
             parsed_response = json.loads(response.read())
             name = parsed_response['name']
         except:
