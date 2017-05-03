@@ -91,8 +91,8 @@ def addIfNewUser(request):
        if User.objects.filter(username=request.oauth.credentials.id_token['email']).exists():
            updateNameInfo=User.objects.get(username=request.oauth.credentials.id_token['email'])
 		   ## Update the users name ( in the case that the user was created through group/role management pages)
-           updateNameInfo.set_first_name=request.oauth.credentials.id_token['given_name']
-           updateNameInfo.set_last_name=request.oauth.credentials.id_token['family_name']
+           updateNameInfo.first_name=request.oauth.credentials.id_token['given_name']
+           updateNameInfo.last_name=request.oauth.credentials.id_token['family_name']
            updateNameInfo.save()         
        else:
 	   #Create a new user from the logged in google info
@@ -105,7 +105,8 @@ def addIfNewUser(request):
            login(request, user)
 
 def logout_view(request):
-   request.user.auth_token.delete()
+   if  request.user.auth_token:
+        request.user.auth_token.delete()
    logout(request)
    return render(
             request,
@@ -313,12 +314,13 @@ def pubStatus(request):
             }
         )
     else:
-        return loadHomeWithPermError(request,"You do not habe access to view the publish status page" )
+        return loadHomeWithPermError(request,"You do not have access to view the publish status page" )
      
 def loadHomeWithPermError(request,error):
    return home(request,error)
 
 def admin(request):
+  if request.user.has_perm('webapp.CanChangeAPIKeys') or request.user.has_perm('webapp.CanChangeGroups') or request.user.has_perm('webapp.CanViewLogs') or request.user.has_perm('webapp.CanChangePermissions'):
     """Renders the about page."""
     assert isinstance(request, HttpRequest)
     return render(
@@ -330,7 +332,8 @@ def admin(request):
             'year':datetime.now().year
         }
     )
-
+  else:
+      return loadHomeWithPermError(request,"You do not have any admin rights" )
 def apiKeys(request):
   if request.user.has_perm('webapp.CanChangeAPIKeys'):
     """Renders the API keys page"""
